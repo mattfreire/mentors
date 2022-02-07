@@ -14,7 +14,7 @@
   </component>
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="jdk" jdkName="Python 3.9 (mentors)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote Python 3.9.10 Docker (mentors_local_django:latest)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
