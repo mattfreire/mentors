@@ -19,7 +19,7 @@ const navbar = () => {
             <li className='nav-item'>
                 <Link href='/dashboard'>
                     <a className={
-                        router.pathname === '/dashboard' ? 
+                        router.pathname === '/dashboard' ?
                         'nav-link active' : 'nav-link'
                     }>
                         Dashboard
@@ -27,7 +27,7 @@ const navbar = () => {
                 </Link>
             </li>
             <li className='nav-item'>
-                <a 
+                <a
                     className='nav-link'
                     href='#!'
                     onClick={logoutHandler}
@@ -43,7 +43,7 @@ const navbar = () => {
             <li className='nav-item'>
                 <Link href='/register'>
                     <a className={
-                        router.pathname === '/register' ? 
+                        router.pathname === '/register' ?
                         'nav-link active' : 'nav-link'
                     }>
                         Register
@@ -53,7 +53,7 @@ const navbar = () => {
             <li className='nav-item'>
                 <Link href='/login'>
                     <a className={
-                        router.pathname === '/login' ? 
+                        router.pathname === '/login' ?
                         'nav-link active' : 'nav-link'
                     }>
                         Login
@@ -71,13 +71,13 @@ const navbar = () => {
                         httpOnly Auth
                     </a>
                 </Link>
-                <button 
-                    className='navbar-toggler' 
-                    type='button' 
-                    data-bs-toggle='collapse' 
-                    data-bs-target='#navbarNav' 
-                    aria-controls='navbarNav' 
-                    aria-expanded='false' 
+                <button
+                    className='navbar-toggler'
+                    type='button'
+                    data-bs-toggle='collapse'
+                    data-bs-target='#navbarNav'
+                    aria-controls='navbarNav'
+                    aria-expanded='false'
                     aria-label='Toggle navigation'
                 >
                     <span className='navbar-toggler-icon'></span>
@@ -87,10 +87,20 @@ const navbar = () => {
                         <li className='nav-item'>
                             <Link  href='/'>
                                 <a className={
-                                    router.pathname === '/' ? 
+                                    router.pathname === '/' ?
                                     'nav-link active' : 'nav-link'
                                 }>
                                     Home
+                                </a>
+                            </Link>
+                        </li>
+                        <li className='nav-item'>
+                            <Link  href='/mentors'>
+                                <a className={
+                                    router.pathname === '/mentors' ?
+                                    'nav-link active' : 'nav-link'
+                                }>
+                                    Mentors
                                 </a>
                             </Link>
                         </li>

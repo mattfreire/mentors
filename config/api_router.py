@@ -2,6 +2,7 @@ from django.conf import settings
 from django.urls import path
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
+from mentors.mentors.api.views import MentorViewSet
 from mentors.users.api.views import UserViewSet, LoadUserView
 
 if settings.DEBUG:
@@ -10,6 +11,7 @@ else:
     router = SimpleRouter()
 
 router.register("users", UserViewSet)
+router.register("mentors", MentorViewSet)
 
 
 app_name = "api"

@@ -24,19 +24,19 @@ export default async (req, res) => {
 
       if (apiRes.status === 200) {
         res.setHeader("Set-Cookie", [
-          cookie.serialize("access", data.access, {
+           ("access", data.access, {
             httpOnly: true,
             secure: process.env.NODE_ENV !== "development",
             maxAge: 60 * 30,
             sameSite: "strict",
-            path: "/api/",
+            path: "/",
           }),
           cookie.serialize("refresh", data.refresh, {
             httpOnly: true,
             secure: process.env.NODE_ENV !== "development",
             maxAge: 60 * 60 * 24,
             sameSite: "strict",
-            path: "/api/",
+            path: "/",
           }),
         ]);
 
