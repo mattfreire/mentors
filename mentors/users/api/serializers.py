@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
+from mentors.mentors.models import Mentor
 
 User = get_user_model()
 
@@ -45,6 +45,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         user.set_password(validated_data['password'])
         user.save()
+
+        Mentor.objects.create(user=user)
 
         return user
 
