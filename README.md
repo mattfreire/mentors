@@ -72,3 +72,31 @@ The following details how to deploy this application.
 ### Docker
 
 See detailed [cookiecutter-django Docker documentation](http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html).
+
+## Planning
+
+Marketplace to find mentors
+
+- See list of mentors (List view)
+- Mentors profile (Detail view)
+- Session (video call) with mentor
+- Mentor Django model
+  - rate ($/15 mins)
+  - example session is 35 minutes -> $45
+- Session Django model
+    - mentor
+    - student
+    - send request to initiate the session
+- SessionSegment Django model
+  - pause session
+  - end session
+- Stripe connect to handle payouts to mentors
+
+
+0 -> 10 mins (SessionSegment)
+10 mins -> 1hr (SessionSegment)
+1 hr
+
+
+
+
