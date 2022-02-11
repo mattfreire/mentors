@@ -1,9 +1,9 @@
-import { useRouter } from 'next/router';
-import { useSelector } from 'react-redux';
+import {useRouter} from 'next/router';
+import {useSelector} from 'react-redux';
 import Layout from '../hocs/Layout';
 import {API_URL} from "../config";
 
-const MentorList = ({ mentors }) => {
+const MentorList = ({mentors}) => {
     const router = useRouter();
 
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
@@ -40,25 +40,25 @@ const MentorList = ({ mentors }) => {
 export default MentorList;
 
 export async function getServerSideProps(context) {
-  const { req } = context
-  const { cookies } = req
-let data = []
+    const {req} = context
+    const {cookies} = req
+    let data = []
     try {
-      const apiRes = await fetch(`${API_URL}/api/mentors/`, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${cookies.access}`,
-        }
-      });
-      data = await apiRes.json();
+        const apiRes = await fetch(`${API_URL}/api/mentors/`, {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${cookies.access}`,
+            }
+        });
+        data = await apiRes.json();
     } catch (err) {
-      console.error(err)
+        console.error(err)
     }
-  return {
-    props: {
-        mentors: data
-    },
-  }
+    return {
+        props: {
+            mentors: data
+        },
+    }
 }
