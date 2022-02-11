@@ -1,12 +1,10 @@
 import {useRouter} from 'next/router';
 import {useSelector} from 'react-redux';
-import Link from 'next/link'
-import Layout from '../hocs/Layout';
-import {API_URL} from "../config";
+import Layout from '../../hocs/Layout';
+import {API_URL} from "../../config";
 
-const MentorList = ({mentors}) => {
+const MentorDetail = ({ mentor }) => {
     const router = useRouter();
-
     const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
     const user = useSelector(state => state.auth.user);
     const loading = useSelector(state => state.auth.loading);
@@ -14,25 +12,22 @@ const MentorList = ({mentors}) => {
     if (typeof window !== 'undefined' && !loading && !isAuthenticated)
         router.push('/login');
 
+    const { username } = router.query
+    console.log(username)
+
     return (
         <Layout
-            title='httpOnly Auth | Mentors'
-            content='All of the mentors'
+            title='httpOnly Auth | Mentor Detail'
+            content='Mentor profile'
         >
             <div className='p-5 bg-light rounded-3'>
                 <div className='container-fluid py-3'>
                     <h1 className='display-5 fw-bold'>
-                        Find a Mentor
+                        Mentor Profile
                     </h1>
                     <div className='fs-4 mt-3'>
-                        {mentors.map(mentor => (
-                            <div key={mentor.user.username}>
-                                <Link href={`/mentors/${mentor.user.username}`}>
-                                    <h3>{mentor.user.username}</h3>
-                                </Link>
-                                <p>{mentor.is_active ? "Active" : "Inactive"}</p>
-                            </div>
-                        ))}
+                        {username}{" "}
+                        {mentor.is_active ? "Active" : "Inactive"}
                     </div>
                 </div>
             </div>
@@ -40,14 +35,15 @@ const MentorList = ({mentors}) => {
     );
 };
 
-export default MentorList;
+export default MentorDetail;
 
 export async function getServerSideProps(context) {
     const {req} = context
     const {cookies} = req
+    const username = "test"
     let data = []
     try {
-        const apiRes = await fetch(`${API_URL}/api/mentors/`, {
+        const apiRes = await fetch(`${API_URL}/api/mentors/${username}/`, {
             method: "GET",
             headers: {
                 Accept: "application/json",
@@ -63,7 +59,7 @@ export async function getServerSideProps(context) {
     }
     return {
         props: {
-            mentors: data
+            mentor: data
         },
     }
 }

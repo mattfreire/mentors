@@ -8,3 +8,4 @@ from .serializers import MentorSerializer
 class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = MentorSerializer
     queryset = Mentor.objects.all()
+    lookup_field = "user__username"
