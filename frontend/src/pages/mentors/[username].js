@@ -38,9 +38,9 @@ const MentorDetail = ({ mentor }) => {
 export default MentorDetail;
 
 export async function getServerSideProps(context) {
-    const {req} = context
+    const { req, query } = context
     const {cookies} = req
-    const username = "test"
+    const { username } = query
     let data = []
     try {
         const apiRes = await fetch(`${API_URL}/api/mentors/${username}/`, {
