@@ -1,15 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import {useState, useContext} from 'react';
 import { useRouter } from 'next/router';
-import { login, reset_register_success } from '../actions/auth';
-import Layout from '../hocs/Layout';
 import Loader from 'react-loader-spinner';
+import {AuthContext} from "../contexts/AuthContext";
 
 const LoginPage = () => {
-    const dispatch = useDispatch();
     const router = useRouter();
-    const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-    const loading = useSelector(state => state.auth.loading);
+    const { user, login, loading } = useContext(AuthContext)
 
     const [formData, setFormData] = useState({
         username: '',
@@ -21,28 +17,18 @@ const LoginPage = () => {
         password,
     } = formData;
 
-    useEffect(() => {
-        if (dispatch && dispatch !== null && dispatch !== undefined)
-            dispatch(reset_register_success());
-    }, [dispatch]);
-
     const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const onSubmit = e => {
+    const onSubmit = async e => {
         e.preventDefault();
-
-        if (dispatch && dispatch !== null && dispatch !== undefined)
-            dispatch(login(username, password));
+        await login(username, password);
     };
 
-    if (typeof window !== 'undefined' && isAuthenticated)
+    if (typeof window !== 'undefined' && user)
         router.push('/dashboard');
 
     return (
-        <Layout
-            title='httpOnly Auth | Login'
-            content='Resiger page for this auth tutorial on httpOnly cookies'
-        >
+        <div>
             <h1 className='display-4 mt-5'>Login Page</h1>
             <form className='bg-light p-5 mt-5 mb-5' onSubmit={onSubmit}>
                 <h3>Log Into Your Account</h3>
@@ -92,7 +78,7 @@ const LoginPage = () => {
                     )
                 }
             </form>
-        </Layout>
+        </div>
     );
 };
 

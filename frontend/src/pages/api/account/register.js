@@ -2,11 +2,9 @@ import { API_URL } from "../../../config/index";
 
 export default async (req, res) => {
   if (req.method === "POST") {
-    const { first_name, last_name, username, password, re_password } = req.body;
+    const { username, password, re_password } = req.body;
 
     const body = JSON.stringify({
-      first_name,
-      last_name,
       username,
       password,
       re_password,

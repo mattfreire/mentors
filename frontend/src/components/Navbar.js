@@ -1,17 +1,14 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../actions/auth';
+import {useContext} from "react";
+import {AuthContext} from "../contexts/AuthContext";
 
 const navbar = () => {
-    const dispatch = useDispatch();
     const router = useRouter();
-
-    const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+    const { user, logout } = useContext(AuthContext)
 
     const logoutHandler = () => {
-        if (dispatch && dispatch !== null && dispatch !== undefined)
-            dispatch(logout());
+        logout()
     };
 
     const authLinks = (
@@ -23,6 +20,16 @@ const navbar = () => {
                         'nav-link active' : 'nav-link'
                     }>
                         Dashboard
+                    </a>
+                </Link>
+            </li>
+            <li className='nav-item'>
+                <Link  href='/mentors'>
+                    <a className={
+                        router.pathname === '/mentors' ?
+                        'nav-link active' : 'nav-link'
+                    }>
+                        Mentors
                     </a>
                 </Link>
             </li>
@@ -80,7 +87,7 @@ const navbar = () => {
                     aria-expanded='false'
                     aria-label='Toggle navigation'
                 >
-                    <span className='navbar-toggler-icon'></span>
+                    <span className='navbar-toggler-icon'/>
                 </button>
                 <div className='collapse navbar-collapse' id='navbarNav'>
                     <ul className='navbar-nav'>
@@ -94,18 +101,8 @@ const navbar = () => {
                                 </a>
                             </Link>
                         </li>
-                        <li className='nav-item'>
-                            <Link  href='/mentors'>
-                                <a className={
-                                    router.pathname === '/mentors' ?
-                                    'nav-link active' : 'nav-link'
-                                }>
-                                    Mentors
-                                </a>
-                            </Link>
-                        </li>
                         {
-                            isAuthenticated ? authLinks : guestLinks
+                            user ? authLinks : guestLinks
                         }
                     </ul>
                 </div>

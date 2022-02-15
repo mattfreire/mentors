@@ -8,7 +8,7 @@ const Layout = ({ title, content, children }) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (dispatch && dispatch !== null && dispatch !== undefined)
+        if (dispatch)
             dispatch(request_refresh());
     }, [dispatch]);
 
