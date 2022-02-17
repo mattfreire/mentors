@@ -6,6 +6,7 @@ import {AuthContext} from "../contexts/AuthContext";
 const navbar = () => {
     const router = useRouter();
     const { user, logout } = useContext(AuthContext)
+    console.log(user)
 
     const logoutHandler = () => {
         logout()
@@ -41,6 +42,15 @@ const navbar = () => {
                 >
                     Logout
                 </a>
+            </li>
+            <li className='nav-item'>
+                <a
+                    className='nav-link'
+                    href='#'
+                >
+                    Logged in user: {user ? user.username: ""}
+                </a>
+
             </li>
         </>
     );

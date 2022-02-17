@@ -1,15 +1,59 @@
 import {useRouter} from 'next/router';
-import {useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import {API_URL} from "../../config";
 import {AuthContext} from "../../contexts/AuthContext";
 
-const MentorDetail = ({mentor}) => {
+const MentorDetail = ({mentor, accessToken}) => {
   const router = useRouter();
   const {username} = router.query
   const {user, loading} = useContext(AuthContext)
+  const [sessionTime, setSessionTime] = useState(null)
+  const [mentorSession, setMentorSession] = useState(null)
 
   if (typeof window !== 'undefined' && !user && !loading)
     router.push('/login');
+
+  useEffect(() => {
+    setInterval(() => {
+      if (mentorSession) {
+        const dateNow = new Date()
+        const timeNow = dateNow.getTime()
+
+        const startTimeDate = new Date(mentorSession.start_time)
+        const startTime = startTimeDate.getTime()
+
+        const timeSinceStart = (timeNow - startTime) / 1000
+        setSessionTime(timeSinceStart)
+      }
+
+    }, 1000)
+  }, [mentorSession])
+
+  async function createSession() {
+    try {
+      const date = new Date()
+      const startTime = date.toTimeString()
+      const body = {
+        start_time: startTime,
+        mentor: mentor.id
+      }
+      const apiRes = await fetch(`${API_URL}/api/sessions/`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(body)
+      });
+      if (apiRes.status === 201) {
+        const data = await apiRes.json();
+        setMentorSession(data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   return (
     <div className='p-5 bg-light rounded-3'>
@@ -21,6 +65,11 @@ const MentorDetail = ({mentor}) => {
           {username}{" "}
           {mentor.is_active ? "Active" : "Inactive"}
         </div>
+        {mentorSession ? (
+          <p>Session has been going on for: {sessionTime} seconds</p>
+        ) : (
+          <button onClick={createSession}>Start Session</button>
+        )}
       </div>
     </div>
   );
@@ -51,7 +100,8 @@ export async function getServerSideProps(context) {
   return {
     props: {
       mentor: data,
-      protected: true
+      protected: true,
+      accessToken: cookies.access
     },
   }
 }

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import path
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
-from mentors.mentors.api.views import MentorViewSet, StripeAccountLinkView
+from mentors.mentors.api.views import MentorViewSet, StripeAccountLinkView, MentorSessionViewSet
 from mentors.users.api.views import UserViewSet, LoadUserView
 
 if settings.DEBUG:
@@ -12,6 +12,7 @@ else:
 
 router.register("users", UserViewSet)
 router.register("mentors", MentorViewSet)
+router.register("sessions", MentorSessionViewSet)
 
 
 app_name = "api"
