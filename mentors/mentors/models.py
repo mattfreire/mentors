@@ -8,7 +8,7 @@ User = get_user_model()
 
 
 class Mentor(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=False)
 
     def __str__(self):

@@ -55,6 +55,27 @@ const MentorDetail = ({mentor, accessToken}) => {
     }
   }
 
+  async function pauseSession() {
+    try {
+      const apiRes = await fetch(`${API_URL}/api/sessions/${mentorSession.id}/pause/`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (apiRes.status === 200) {
+        const data = await apiRes.json();
+        console.log(data)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  async function endSession() {}
+
   return (
     <div className='p-5 bg-light rounded-3'>
       <div className='container-fluid py-3'>
@@ -66,7 +87,11 @@ const MentorDetail = ({mentor, accessToken}) => {
           {mentor.is_active ? "Active" : "Inactive"}
         </div>
         {mentorSession ? (
-          <p>Session has been going on for: {sessionTime} seconds</p>
+          <div>
+            <p>Session has been going on for: {sessionTime} seconds</p>
+            <button onClick={pauseSession}>Pause Session</button>
+            <button onClick={endSession}>End Session</button>
+          </div>
         ) : (
           <button onClick={createSession}>Start Session</button>
         )}

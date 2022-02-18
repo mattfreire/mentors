@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from mentors.mentors.models import Mentor, MentorSession
+from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent
 from mentors.users.serializers import UserSerializer
 
 
@@ -19,7 +19,20 @@ class MentorSerializer(serializers.ModelSerializer):
         return UserSerializer(obj.user).data
 
 
+class MentorSessionEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MentorSessionEvent
+        fields = (
+            "id",
+            "start_time",
+            "end_time",
+            "session_length",
+        )
+
+
 class MentorSessionSerializer(serializers.ModelSerializer):
+    events = serializers.SerializerMethodField()
+
     class Meta:
         model = MentorSession
         fields = (
@@ -30,9 +43,16 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "end_time",
             "session_length",
             "completed",
+            "events"
         )
         read_only_fields = (
             "id",
             "client",
             "session_length",
+            "events"
         )
+
+    def get_events(self, obj):
+        events = obj.events.all()
+        data = MentorSessionEventSerializer(events, many=True).data
+        return data
