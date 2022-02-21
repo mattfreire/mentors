@@ -107,8 +107,6 @@ class CreateStripeCheckoutView(APIView):
         segments = ceil(minutes / 15)
         price = segments * mentor_session.mentor.rate
 
-        print(price)
-
         domain = "https://domain.com"
         if settings.DEBUG:
             domain = "http://localhost:3000"
