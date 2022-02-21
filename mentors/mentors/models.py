@@ -10,6 +10,7 @@ User = get_user_model()
 class Mentor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=False)
+    rate = models.IntegerField(default=1000)  # cents
 
     def __str__(self):
         return self.user.username

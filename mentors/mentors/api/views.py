@@ -1,4 +1,5 @@
 import datetime
+from math import ceil
 
 import stripe
 from django.conf import settings
@@ -102,6 +103,12 @@ class CreateStripeCheckoutView(APIView):
 
     def post(self, request, *args, **kwargs):
         mentor_session = MentorSession.objects.get(id=self.request.data["mentorSessionId"])
+        minutes = mentor_session.session_length / 60  # seconds
+        segments = ceil(minutes / 15)
+        price = segments * mentor_session.mentor.rate
+
+        print(price)
+
         domain = "https://domain.com"
         if settings.DEBUG:
             domain = "http://localhost:3000"
@@ -113,7 +120,7 @@ class CreateStripeCheckoutView(APIView):
                         'name': mentor_session.mentor.user.name,
                         'description': f"Sessions with {mentor_session.mentor.user.name}"
                     },
-                    'unit_amount_decimal': 1000  # TODO - session length x mentor rate
+                    'unit_amount_decimal': price
                 },
                 'quantity': 1,
             }],

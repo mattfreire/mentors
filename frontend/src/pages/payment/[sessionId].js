@@ -6,6 +6,7 @@ import {AuthContext} from "../../contexts/AuthContext";
 const SessionPayment = ({mentorSession, accessToken}) => {
   const router = useRouter();
   const {user, loading} = useContext(AuthContext)
+  console.log(mentorSession)
 
   if (typeof window !== 'undefined' && !user && !loading)
     router.push('/login');
@@ -33,6 +34,10 @@ const SessionPayment = ({mentorSession, accessToken}) => {
     }
   }
 
+  function formatPrice(price) {
+    return "$" + price / 100
+  }
+
   return (
     <div className='p-5 bg-light rounded-3'>
       <div className='container-fluid py-3'>
@@ -40,6 +45,7 @@ const SessionPayment = ({mentorSession, accessToken}) => {
           Session Payment
         </h1>
         <div className='fs-4 mt-3'>
+          <p>Session Amount: {formatPrice(mentorSession.price)}</p>
           <button onClick={createStripeCheckout}>Pay with Stripe</button>
         </div>
       </div>
