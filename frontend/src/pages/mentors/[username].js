@@ -1,9 +1,9 @@
 import {useRouter} from 'next/router';
-import {useContext, useEffect, useState} from "react";
+import {useContext, useState} from "react";
 import { useStopwatch } from 'react-timer-hook';
 import {API_URL} from "../../config";
 import {AuthContext} from "../../contexts/AuthContext";
-
+import Link from "next/link";
 
 const MentorDetail = ({mentor, accessToken}) => {
   const router = useRouter();
@@ -105,13 +105,20 @@ const MentorDetail = ({mentor, accessToken}) => {
           {mentor.is_active ? "Active" : "Inactive"}
         </div>
         <div style={{textAlign: 'center'}}>
-          <h1>react-timer-hook</h1>
-          <p>Stopwatch Demo</p>
           <div style={{fontSize: '100px'}}>
             <span>{days}</span>:<span>{hours}</span>:<span>{minutes}</span>:<span>{seconds}</span>
           </div>
           <p>{isRunning ? 'Running' : 'Not running'}</p>
-          {sessionEnded && "Your session has ended!"}
+          {sessionEnded && (
+            <div>
+              <h3>Your session has ended!</h3>
+              <p>Please click here to <Link href={`/payment/${mentorSession.id}`}>
+                    <a>
+                        pay
+                    </a>
+                </Link> for the session</p>
+            </div>
+          )}
           {mentorSession ? (
             <div>
               <button onClick={pauseSession}>{isRunning ? "Pause" : "Resume"}</button>

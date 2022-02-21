@@ -28,6 +28,16 @@ export const AuthContextProvider = ({children, pageProps}) => {
     } finally {
       setLoading(false)
     }
+
+    setInterval(async () => {
+      // Refresh token every 25 minutes
+      try {
+        await AuthService.refresh()
+      } catch (e) {
+        console.log(e)
+      }
+    }, 25 * 60 * 1000)
+
   }, [])
 
   async function getUser() {

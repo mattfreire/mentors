@@ -2,6 +2,7 @@ import datetime
 
 import stripe
 from django.conf import settings
+from django.db.models import Q
 from django.utils.timezone import make_aware
 from rest_framework.decorators import action
 from rest_framework import permissions, status
@@ -30,7 +31,9 @@ class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin,
     lookup_field = "id"
 
     def get_queryset(self):
-        return MentorSession.objects.filter(mentor=self.request.user.mentor)
+        return MentorSession.objects.filter(
+            Q(mentor=self.request.user.mentor) | Q(client=self.request.user)
+        )
 
     def perform_create(self, serializer):
         mentor_session = serializer.save(client=self.request.user)
@@ -92,3 +95,36 @@ class StripeAccountLinkView(APIView):
             type='account_onboarding',
         )
         return Response({"url": account_links["url"]})
+
+
+class CreateStripeCheckoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        mentor_session = MentorSession.objects.get(id=self.request.data["mentorSessionId"])
+        domain = "https://domain.com"
+        if settings.DEBUG:
+            domain = "http://localhost:3000"
+        session = stripe.checkout.Session.create(
+            line_items=[{
+                'price_data': {
+                    'currency': "usd",
+                    'product_data': {
+                        'name': mentor_session.mentor.user.name,
+                        'description': f"Sessions with {mentor_session.mentor.user.name}"
+                    },
+                    'unit_amount_decimal': 1000  # TODO - session length x mentor rate
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=domain + '/sessions/' + str(mentor_session.id),
+            cancel_url=domain + '/payment/' + str(mentor_session.id),
+            payment_intent_data={
+                'application_fee_amount': 123,
+                'transfer_data': {
+                    'destination': mentor_session.mentor.user.stripe_account_id,
+                },
+            },
+        )
+        return Response({"url": session["url"]})
