@@ -55,6 +55,28 @@ class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin,
         serializer = self.serializer_class(mentor_session, context={"request": request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
+    @action(detail=True, methods=["post"])
+    def end(self, request, id):
+        mentor_session: MentorSession = get_object_or_404(MentorSession, id=id)
+        event = mentor_session.events.all().order_by("-start_time")[0]
+        end_time = make_aware(datetime.datetime.now())
+
+        if not event.end_time:
+            # Pause the last event and end the session
+            event.end_time = end_time
+            session_length_time = end_time - event.start_time
+            event.session_length = session_length_time.seconds
+            event.save()
+
+        # End the session
+        mentor_session.completed = True
+        mentor_session.end_time = end_time
+        mentor_session.session_length = mentor_session.calculate_session_length(id)
+        mentor_session.save()
+
+        serializer = self.serializer_class(mentor_session, context={"request": request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
 
 class StripeAccountLinkView(APIView):
     permission_classes = [permissions.IsAuthenticated]

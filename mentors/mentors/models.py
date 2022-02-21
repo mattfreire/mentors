@@ -2,7 +2,7 @@ import uuid
 
 from django.contrib.auth import get_user_model
 from django.db import models
-
+from django.db.models import Sum
 
 User = get_user_model()
 
@@ -27,6 +27,16 @@ class MentorSession(models.Model):
 
     def __str__(self):
         return self.mentor.user.username
+
+    @classmethod
+    def calculate_session_length(cls, id):
+        mentor_session = MentorSession.objects.get(id=id)
+        event_sum = mentor_session.events\
+            .all()\
+            .aggregate(session_length_sum=Sum("session_length"))
+            # {"session_length_sum": 100}
+        print(event_sum)
+        return event_sum["session_length_sum"]
 
 
 class MentorSessionEvent(models.Model):

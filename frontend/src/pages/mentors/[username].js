@@ -1,33 +1,28 @@
 import {useRouter} from 'next/router';
 import {useContext, useEffect, useState} from "react";
+import { useStopwatch } from 'react-timer-hook';
 import {API_URL} from "../../config";
 import {AuthContext} from "../../contexts/AuthContext";
+
 
 const MentorDetail = ({mentor, accessToken}) => {
   const router = useRouter();
   const {username} = router.query
   const {user, loading} = useContext(AuthContext)
-  const [sessionTime, setSessionTime] = useState(null)
+  const [sessionEnded, setSessionEnded] = useState(false)
   const [mentorSession, setMentorSession] = useState(null)
+  const {
+    seconds,
+    minutes,
+    hours,
+    days,
+    isRunning,
+    start,
+    pause,
+  } = useStopwatch({ autoStart: false });
 
   if (typeof window !== 'undefined' && !user && !loading)
     router.push('/login');
-
-  useEffect(() => {
-    setInterval(() => {
-      if (mentorSession) {
-        const dateNow = new Date()
-        const timeNow = dateNow.getTime()
-
-        const startTimeDate = new Date(mentorSession.start_time)
-        const startTime = startTimeDate.getTime()
-
-        const timeSinceStart = (timeNow - startTime) / 1000
-        setSessionTime(timeSinceStart)
-      }
-
-    }, 1000)
-  }, [mentorSession])
 
   async function createSession() {
     try {
@@ -48,6 +43,7 @@ const MentorDetail = ({mentor, accessToken}) => {
       });
       if (apiRes.status === 201) {
         const data = await apiRes.json();
+        start()
         setMentorSession(data)
       }
     } catch (err) {
@@ -67,14 +63,36 @@ const MentorDetail = ({mentor, accessToken}) => {
       });
       if (apiRes.status === 200) {
         const data = await apiRes.json();
-        console.log(data)
+        if (isRunning) {
+          pause()
+        } else {
+          start()
+        }
       }
     } catch (err) {
       console.error(err)
     }
   }
 
-  async function endSession() {}
+  async function endSession() {
+    try {
+      const apiRes = await fetch(`${API_URL}/api/sessions/${mentorSession.id}/end/`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (apiRes.status === 200) {
+        const data = await apiRes.json();
+        pause()
+        setSessionEnded(true)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   return (
     <div className='p-5 bg-light rounded-3'>
@@ -86,15 +104,23 @@ const MentorDetail = ({mentor, accessToken}) => {
           {username}{" "}
           {mentor.is_active ? "Active" : "Inactive"}
         </div>
-        {mentorSession ? (
-          <div>
-            <p>Session has been going on for: {sessionTime} seconds</p>
-            <button onClick={pauseSession}>Pause Session</button>
-            <button onClick={endSession}>End Session</button>
+        <div style={{textAlign: 'center'}}>
+          <h1>react-timer-hook</h1>
+          <p>Stopwatch Demo</p>
+          <div style={{fontSize: '100px'}}>
+            <span>{days}</span>:<span>{hours}</span>:<span>{minutes}</span>:<span>{seconds}</span>
           </div>
-        ) : (
-          <button onClick={createSession}>Start Session</button>
-        )}
+          <p>{isRunning ? 'Running' : 'Not running'}</p>
+          {sessionEnded && "Your session has ended!"}
+          {mentorSession ? (
+            <div>
+              <button onClick={pauseSession}>{isRunning ? "Pause" : "Resume"}</button>
+              <button onClick={endSession}>End</button>
+            </div>
+          ) : (
+            <button onClick={createSession}>Start</button>
+          )}
+        </div>
       </div>
     </div>
   );
