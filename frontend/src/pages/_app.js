@@ -1,15 +1,10 @@
 import Head from 'next/head';
-// import { Provider } from 'react-redux';
-// import { useStore } from '../store';
-import Layout from "../hocs/Layout";
+import "../../styles/globals.css"
 import Navbar from '../components/Navbar'
 import {AuthContextProvider} from "../contexts/AuthContext";
 
 const App = ({Component, pageProps}) => {
-  // const store = useStore(pageProps.initialReduxState);
-
   return (
-    // <Provider store={store}>
     <AuthContextProvider pageProps={pageProps}>
       <Head>
         <title>HTTPOnly Auth</title>
@@ -26,14 +21,9 @@ const App = ({Component, pageProps}) => {
           crossOrigin='anonymous'
         />
       </Head>
-      {/*<Layout*/}
-      {/*  title='httpOnly Auth | Mentors'*/}
-      {/*  content='All of the mentors'>*/}
       <Navbar />
       <Component {...pageProps} />
-      {/*</Layout>*/}
     </AuthContextProvider>
-    // </Provider>
   );
 };
 
