@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import path
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
-from mentors.mentors.api.views import MentorViewSet, StripeAccountLinkView, MentorSessionViewSet, CreateStripeCheckoutView
+from mentors.mentors.api.views import MentorViewSet, StripeAccountLinkView, MentorSessionViewSet, CreateStripeCheckoutView, StripeCustomerPortalLinkView
 from mentors.users.api.views import UserViewSet, LoadUserView
 
 if settings.DEBUG:
@@ -20,5 +20,6 @@ urlpatterns = router.urls
 urlpatterns += [
     path("users/me/", LoadUserView.as_view()),
     path("stripe-connect/", StripeAccountLinkView.as_view()),
-    path("stripe-checkout/", CreateStripeCheckoutView.as_view())
+    path("stripe-checkout/", CreateStripeCheckoutView.as_view()),
+    path("stripe-customer-portal/", StripeCustomerPortalLinkView.as_view()),
 ]

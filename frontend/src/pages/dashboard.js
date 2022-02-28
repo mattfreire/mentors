@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router';
-import Link from "next/link";
 import {useContext} from "react";
 import {AuthContext} from "../contexts/AuthContext";
 
@@ -19,11 +18,6 @@ const Dashboard = () => {
                 <p className='fs-4 mt-3'>
                     Welcome {user && user.first_name} to the httpOnly Auth Tutorial Site!
                 </p>
-                <Link href='/stripe-connect'>
-                    <a>
-                        Connect Stripe Account
-                    </a>
-                </Link>
             </div>
         </div>
     );

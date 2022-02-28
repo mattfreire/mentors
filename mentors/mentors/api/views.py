@@ -145,3 +145,19 @@ class CreateStripeCheckoutView(APIView):
             },
         )
         return Response({"url": session["url"]})
+
+
+class StripeCustomerPortalLinkView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        domain = "https://domain.com"
+        if settings.DEBUG:
+            domain = "http://localhost:3000"
+
+        session = stripe.billing_portal.Session.create(
+            customer=self.request.user.stripe_customer_id,
+            return_url=domain + '/profile/u/billing',
+        )
+
+        return Response({"url": session["url"]})
