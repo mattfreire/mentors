@@ -42,6 +42,18 @@ class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin,
             mentor_session=mentor_session
         )
 
+    @action(detail=False, methods=["get"])
+    def client_session_history(self, request):
+        mentor_sessions = MentorSession.objects.filter(client=self.request.user, completed=True)
+        serializer = self.serializer_class(mentor_sessions, many=True, context={"request": request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @action(detail=False, methods=["get"])
+    def mentor_session_history(self, request):
+        mentor_sessions = MentorSession.objects.filter(mentor=self.request.user.mentor, completed=True)
+        serializer = self.serializer_class(mentor_sessions, many=True, context={"request": request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
     @action(detail=True, methods=["post"])
     def pause(self, request, id):
         mentor_session: MentorSession = get_object_or_404(MentorSession, id=id)

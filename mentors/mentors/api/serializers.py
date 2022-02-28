@@ -35,6 +35,8 @@ class MentorSessionEventSerializer(serializers.ModelSerializer):
 class MentorSessionSerializer(serializers.ModelSerializer):
     events = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
+    mentor_profile = serializers.SerializerMethodField()
+    client_profile = serializers.SerializerMethodField()
 
     class Meta:
         model = MentorSession
@@ -47,14 +49,18 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "session_length",
             "completed",
             "events",
-            "price"
+            "price",
+            "mentor_profile",
+            "client_profile"
         )
         read_only_fields = (
             "id",
             "client",
             "session_length",
             "events",
-            "price"
+            "price",
+            "mentor_profile",
+            "client_profile"
         )
 
     def get_events(self, obj):
@@ -67,3 +73,17 @@ class MentorSessionSerializer(serializers.ModelSerializer):
         segments = ceil(minutes / 15)
         price = segments * obj.mentor.rate
         return price
+
+    def get_mentor_profile(self, obj):
+        return {
+            "profile_picture": "",
+            "username": obj.mentor.user.username,
+            "full_name": obj.mentor.user.get_full_name()
+        }
+
+    def get_client_profile(self, obj):
+        return {
+            "profile_picture": "",
+            "username": obj.client.username,
+            "full_name": obj.client.get_full_name()
+        }
