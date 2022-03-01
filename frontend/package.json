@@ -17,6 +17,7 @@
     "next": "^12.0.10",
     "react": "17.0.2",
     "react-dom": "17.0.2",
+    "react-drag-drop-files": "^2.3.4",
     "react-loader-spinner": "^4.0.0",
     "react-redux": "^7.2.4",
     "react-timer-hook": "^3.0.5",

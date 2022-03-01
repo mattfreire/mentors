@@ -37,7 +37,7 @@ class LoadUserView(APIView):
     def get(self, request, format=None):
         try:
             user = request.user
-            user = UserSerializer(user)
+            user = UserSerializer(user, context={"request": request})
 
             return Response({"user": user.data}, status=status.HTTP_200_OK)
         except:

@@ -7,15 +7,29 @@ from mentors.mentors.models import Mentor
 User = get_user_model()
 
 
+class MentorProfilePictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mentor
+        fields = (
+            "profile_picture",
+        )
+        read_only_fields = ["profile_picture"]
+
+
 class UserSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name", "name", "url"]
-        read_only_fields = ["username"]
+        fields = ["username", "first_name", "last_name", "name", "url", "profile_picture"]
+        read_only_fields = ["username", "profile_picture"]
 
         extra_kwargs = {
             "url": {"view_name": "api:user-detail", "lookup_field": "username"}
         }
+
+    def get_profile_picture(self, obj):
+        return MentorProfilePictureSerializer(obj.mentor, context=self.context).data["profile_picture"]
 
 
 class RegisterSerializer(serializers.ModelSerializer):

@@ -16,7 +16,12 @@ class MentorSerializer(serializers.ModelSerializer):
             "user",
             "is_active",
             "title",
-            "bio"
+            "bio",
+            "profile_picture"
+        )
+        read_only_fields = (
+            "id",
+            "user"
         )
 
     def get_user(self, obj):
@@ -30,6 +35,10 @@ class MentorSessionEventSerializer(serializers.ModelSerializer):
             "id",
             "start_time",
             "end_time",
+            "session_length",
+        )
+        read_only_fields = (
+            "id",
             "session_length",
         )
 
