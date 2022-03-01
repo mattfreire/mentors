@@ -14,7 +14,9 @@ class MentorSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "user",
-            "is_active"
+            "is_active",
+            "title",
+            "bio"
         )
 
     def get_user(self, obj):

@@ -2,7 +2,7 @@ import {useRouter} from 'next/router';
 import {useContext} from "react";
 import Link from "next/link";
 import {AuthContext} from "../../../contexts/AuthContext";
-import {UserProfileNavbar} from "../../../components/UserProfileNavbar";
+import {MentorProfileNavbar} from "../../../components/MentorProfileNavbar";
 
 const MentorBilling = () => {
   const router = useRouter();
@@ -15,9 +15,9 @@ const MentorBilling = () => {
     <div className='p-5 bg-light rounded-3'>
       <div className='container-fluid py-3'>
         <h1 className='display-5 fw-bold'>
-          User Profile
+          Billing
         </h1>
-        <UserProfileNavbar/>
+        <MentorProfileNavbar/>
       </div>
       <div>
        <Link href='/stripe-connect'>

@@ -4,6 +4,19 @@ import {API_URL} from "../config";
 import {useContext} from "react";
 import {AuthContext} from "../contexts/AuthContext";
 
+
+function Mentor({ mentor }) {
+  return (
+    <div className="py-3 px-3 border border-gray-200 shadow-sm mt-3">
+      <Link href={`/mentors/${mentor.user.username}`}>
+        <h3 className="text-xl font-bold text-gray-900">{mentor.user.username}</h3>
+      </Link>
+      <p className="text-lg text-gray-900">{mentor.title}</p>
+      <p className="text-gray-500">{mentor.bio}</p>
+    </div>
+  )
+}
+
 const MentorList = ({mentors}) => {
   const router = useRouter();
   const {user} = useContext(AuthContext)
@@ -18,14 +31,7 @@ const MentorList = ({mentors}) => {
           Find a Mentor
         </h1>
         <div className='fs-4 mt-3'>
-          {mentors.map(mentor => (
-            <div key={mentor.user.username}>
-              <Link href={`/mentors/${mentor.user.username}`}>
-                <h3>{mentor.user.username}</h3>
-              </Link>
-              <p>{mentor.is_active ? "Active" : "Inactive"}</p>
-            </div>
-          ))}
+          {mentors.map(mentor => <Mentor mentor={mentor} key={mentor.id} /> )}
         </div>
       </div>
     </div>

@@ -25,6 +25,11 @@ class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, Generi
     queryset = Mentor.objects.all()
     lookup_field = "user__username"
 
+    @action(detail=False)
+    def me(self, request):
+        serializer = self.serializer_class(request.user.mentor, context={"request": request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
 
 class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = MentorSessionSerializer

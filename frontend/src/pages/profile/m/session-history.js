@@ -2,14 +2,13 @@ import { useRouter } from 'next/router';
 import Link from "next/link";
 import {useContext} from "react";
 import {AuthContext} from "../../../contexts/AuthContext";
-import {UserProfileNavbar} from "../../../components/UserProfileNavbar";
 import {API_URL} from "../../../config";
+import {MentorProfileNavbar} from "../../../components/MentorProfileNavbar";
 
 
 const MentorSessionHistory = ({ sessions }) => {
     const router = useRouter();
     const { user, loading } = useContext(AuthContext)
-    console.log(sessions)
     if (typeof window !== 'undefined' && !user && !loading)
         router.push('/login');
 
@@ -19,7 +18,7 @@ const MentorSessionHistory = ({ sessions }) => {
                 <h1 className='display-5 fw-bold'>
                     Session History
                 </h1>
-                <UserProfileNavbar />
+                <MentorProfileNavbar />
             </div>
 
             <div className="flex flex-col">
