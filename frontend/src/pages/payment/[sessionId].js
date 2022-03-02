@@ -6,7 +6,6 @@ import {AuthContext} from "../../contexts/AuthContext";
 const SessionPayment = ({mentorSession, accessToken}) => {
   const router = useRouter();
   const {user, loading} = useContext(AuthContext)
-  console.log(mentorSession)
 
   if (typeof window !== 'undefined' && !user && !loading)
     router.push('/login');

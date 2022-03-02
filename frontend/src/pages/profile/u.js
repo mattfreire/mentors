@@ -28,7 +28,6 @@ const UserProfileForm = ({ user, accessToken }) => {
         });
         if (apiRes.status === 200) {
           const data = await apiRes.json();
-          console.log(data)
         }
       } catch (err) {
         console.error(err)

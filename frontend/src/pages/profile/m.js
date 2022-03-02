@@ -1,9 +1,10 @@
 import { useRouter } from 'next/router';
 import {useContext, useState} from "react";
+import useSWR, {SWRConfig, useSWRConfig} from "swr";
+import {useFormik} from "formik";
 import { FileUploader } from "react-drag-drop-files";
 import {AuthContext} from "../../contexts/AuthContext";
 import {MentorProfileNavbar} from "../../components/MentorProfileNavbar";
-import {useFormik} from "formik";
 import {API_URL} from "../../config";
 
 const MentorProfileForm = ({ mentor, accessToken }) => {
@@ -26,7 +27,6 @@ const MentorProfileForm = ({ mentor, accessToken }) => {
         });
         if (apiRes.status === 200) {
           const data = await apiRes.json();
-          console.log(data)
         }
       } catch (err) {
         console.error(err)
@@ -92,22 +92,36 @@ const MentorProfileForm = ({ mentor, accessToken }) => {
   )
 }
 
-
 function MentorProfilePictureForm({ mentor, accessToken }) {
   const [file, setFile] = useState(null);
-  const handleChange = (file) => {
-    setFile(file);
-  };
+  const [imgPreview, setImgPreview] = useState(null)
+  const { user, setUser } = useContext(AuthContext)
+  const { mutate } = useSWRConfig()
+
   const fileTypes = ["JPEG", "PNG"];
+
+  function handleChange(file) {
+    setFile(file);
+    if (file) {
+      let reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => {
+        setImgPreview(reader.result)
+      };
+      reader.onerror = function (error) {
+        console.log('Error: ', error);
+      }
+    } else {
+      setImgPreview(null)
+    }
+  }
 
   async function handleSave() {
     try {
       const data = new FormData()
       data.append("profile_picture", file)
-      data.append("title", mentor.title)
-      data.append("bio", mentor.bio)
       const apiRes = await fetch(`${API_URL}/api/mentors/${mentor.user.username}/`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           Accept: "application/json",
           Authorization: `Bearer ${accessToken}`,
@@ -115,7 +129,35 @@ function MentorProfilePictureForm({ mentor, accessToken }) {
         body: data
       });
       if (apiRes.status === 200) {
-        const data = await apiRes.json();
+        const data = await apiRes.json()
+        mutate(`${API_URL}/api/mentors/me/`, data)
+        mutate(`${API_URL}/api/users/me/`, {...user, profile_picture: data.profile_picture})
+        mutate('/api/account/user', { ...user, profile_picture: data.profile_picture })
+        handleChange(null)
+        setUser({ ...user, profile_picture: data.profile_picture })
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  async function removePic() {
+    try {
+      const apiRes = await fetch(`${API_URL}/api/mentors/${mentor.user.username}/`, {
+        method: "PATCH",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({profile_picture: null})
+      });
+      if (apiRes.status === 200) {
+        mutate(`${API_URL}/api/mentors/me/`, { ...mentor, profile_picture: null })
+        mutate(`${API_URL}/api/users/me/`, { ...user, profile_picture: null })
+        mutate('/api/account/user', { ...user, profile_picture: null })
+        handleChange(null)
+        setUser({ ...user, profile_picture: null })
       }
     } catch (err) {
       console.error(err)
@@ -134,7 +176,11 @@ function MentorProfilePictureForm({ mentor, accessToken }) {
             Profile Picture
           </label>
           <div className="mt-1 sm:mt-0 sm:col-span-2 flex items-center">
-            {mentor.profile_picture && (
+            {imgPreview ? (
+              <div>
+                <img className="w-24 h-24 px-3 py-3 mr-3 rounded-full" src={imgPreview} alt={""} />
+              </div>
+            ) : mentor.profile_picture && (
               <div>
                 <img className="w-24 h-24 px-3 py-3 mr-3 rounded-full" src={mentor.profile_picture} alt={""} />
               </div>
@@ -146,8 +192,16 @@ function MentorProfilePictureForm({ mentor, accessToken }) {
                 name="file"
                 types={fileTypes}
               />
-              <p>{file ? `File name: ${file.name}` : "no files uploaded yet"}</p>
+              <div className="flex items-center justify-center">
+                <p className={"mt-1 text-sm text-gray-500 truncate"}>{file && `Selected file: ${file.name}`}</p>
+                {file && (
+                  <button className="ml-3 text-sm text-blue-500 hover:text-blue-600" onClick={() => handleChange(null)}>Clear</button>
+                )}
+              </div>
             </div>
+            {!file && mentor.profile_picture && (
+              <button className="ml-3 bg-gray-300 hover:bg-gray-400 px-3 py-2 rounded" onClick={removePic}>Remove</button>
+            )}
           </div>
         </div>
       </div>
@@ -169,6 +223,7 @@ function MentorProfilePictureForm({ mentor, accessToken }) {
 }
 
 function MentorActiveForm({ mentor, accessToken }) {
+  const { mutate } = useSWRConfig()
 
   async function handleSave() {
     try {
@@ -185,7 +240,7 @@ function MentorActiveForm({ mentor, accessToken }) {
         body
       });
       if (apiRes.status === 200) {
-        const data = await apiRes.json();
+        mutate(`${API_URL}/api/mentors/me/`, { ...mentor, is_active: !mentor.is_active })
       }
     } catch (err) {
       console.error(err)
@@ -203,54 +258,63 @@ function MentorActiveForm({ mentor, accessToken }) {
   )
 }
 
-const MentorProfile = ({ mentor, accessToken }) => {
+const MentorProfile = ({ accessToken }) => {
     const router = useRouter();
     const { user, loading } = useContext(AuthContext)
+    const { data: mentor, error} = useSWR(`${API_URL}/api/mentors/me/`)
+
+    if (error) return "An error has occurred.";
+    if (!mentor) return "Loading...";
 
     if (typeof window !== 'undefined' && !user && !loading)
         router.push('/login');
 
     return (
-        <div className='p-5 bg-light rounded-3'>
-            <div className='container-fluid py-3'>
-                <h1 className='display-5 fw-bold'>
-                    Mentor Profile
-                </h1>
-                <MentorProfileNavbar />
-            </div>
-            <MentorProfilePictureForm accessToken={accessToken} mentor={mentor} />
-            <MentorProfileForm accessToken={accessToken} mentor={mentor} />
-            <MentorActiveForm accessToken={accessToken} mentor={mentor} />
+      <div className='p-5 bg-light rounded-3'>
+        <div className='container-fluid py-3'>
+            <h1 className='display-5 fw-bold'>
+                Mentor Profile
+            </h1>
+            <MentorProfileNavbar />
         </div>
+        <MentorProfilePictureForm accessToken={accessToken} mentor={mentor} />
+        <MentorProfileForm accessToken={accessToken} mentor={mentor} />
+        <MentorActiveForm accessToken={accessToken} mentor={mentor} />
+      </div>
     );
 };
 
-export default MentorProfile;
+function MentorProfileContainer({ accessToken, fallback }) {
+  return (
+    <SWRConfig value={{ fallback }}>
+      <MentorProfile accessToken={accessToken} />
+    </SWRConfig>
+  )
+}
+
+export default MentorProfileContainer;
 
 export async function getServerSideProps(context) {
   const {req} = context
   const {cookies} = req
-  let data = []
-  try {
-    const apiRes = await fetch(`${API_URL}/api/mentors/me/`, {
-      method: "GET",
+  const API = `${API_URL}/api/mentors/me/`;
+  const fetcher = (url) => {
+    return fetch(url, {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: `Bearer ${cookies.access}`,
       }
-    });
-    if (apiRes.status === 200) {
-      data = await apiRes.json();
-    }
-  } catch (err) {
-    console.error(err)
+    }).then((res) => res.json());
   }
+  const data = await fetcher(API);
   return {
     props: {
-      mentor: data,
       protected: true,
-      accessToken: cookies.access
+      accessToken: cookies.access,
+      fallback: {
+        [API]: data
+      }
     },
   }
 }

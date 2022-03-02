@@ -9,7 +9,6 @@ import {API_URL} from "../../../config";
 const ClientSessionHistory = ({ sessions }) => {
     const router = useRouter();
     const { user, loading } = useContext(AuthContext)
-    console.log(sessions)
 
     if (typeof window !== 'undefined' && !user && !loading)
         router.push('/login');

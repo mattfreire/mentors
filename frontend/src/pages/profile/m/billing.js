@@ -27,7 +27,6 @@ function MentorRateForm({ mentor, accessToken }) {
         });
         if (apiRes.status === 200) {
           const data = await apiRes.json();
-          console.log(data)
         }
       } catch (err) {
         console.error(err)
