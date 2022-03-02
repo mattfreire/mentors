@@ -22,8 +22,12 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = MentorSerializer
-    queryset = Mentor.objects.all()
+    queryset = Mentor.objects.filter(is_active=True)
     lookup_field = "user__username"
+
+    def update(self, request, *args, **kwargs):
+        self.queryset = Mentor.objects.filter(user=request.user)
+        return super(MentorViewSet, self).update(request, *args, **kwargs)
 
     @action(detail=False)
     def me(self, request):

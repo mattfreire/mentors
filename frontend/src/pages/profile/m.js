@@ -168,6 +168,41 @@ function MentorProfilePictureForm({ mentor, accessToken }) {
   );
 }
 
+function MentorActiveForm({ mentor, accessToken }) {
+
+  async function handleSave() {
+    try {
+      const body = JSON.stringify({
+        is_active: !mentor.is_active
+      })
+      const apiRes = await fetch(`${API_URL}/api/mentors/${mentor.user.username}/`, {
+        method: "PATCH",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body
+      });
+      if (apiRes.status === 200) {
+        const data = await apiRes.json();
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  return (
+    <div>
+      <button onClick={handleSave} className={
+        mentor.is_active ? "bg-red-500 text-white px-3 py-2 rounded-sm hover:bg-red-600" : "bg-blue-500 text-white px-3 py-2 rounded-sm hover:bg-blue-600"
+      }>
+        {mentor.is_active ? "Hide Profile": "Show Profile"}
+      </button>
+    </div>
+  )
+}
+
 const MentorProfile = ({ mentor, accessToken }) => {
     const router = useRouter();
     const { user, loading } = useContext(AuthContext)
@@ -185,6 +220,7 @@ const MentorProfile = ({ mentor, accessToken }) => {
             </div>
             <MentorProfilePictureForm accessToken={accessToken} mentor={mentor} />
             <MentorProfileForm accessToken={accessToken} mentor={mentor} />
+            <MentorActiveForm accessToken={accessToken} mentor={mentor} />
         </div>
     );
 };
