@@ -17,7 +17,8 @@ class MentorSerializer(serializers.ModelSerializer):
             "is_active",
             "title",
             "bio",
-            "profile_picture"
+            "profile_picture",
+            "rate"
         )
         read_only_fields = (
             "id",
