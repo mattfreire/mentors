@@ -1,5 +1,6 @@
 from math import ceil
 
+from django.conf import settings
 from rest_framework import serializers
 
 from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent
@@ -49,6 +50,7 @@ class MentorSessionSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     mentor_profile = serializers.SerializerMethodField()
     client_profile = serializers.SerializerMethodField()
+    session_url = serializers.SerializerMethodField()
 
     class Meta:
         model = MentorSession
@@ -63,16 +65,18 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "events",
             "price",
             "mentor_profile",
-            "client_profile"
+            "client_profile",
+            "session_url"
         )
         read_only_fields = (
             "id",
-            "client",
+            "mentor",
             "session_length",
             "events",
             "price",
             "mentor_profile",
-            "client_profile"
+            "client_profile",
+            "session_url"
         )
 
     def get_events(self, obj):
@@ -81,6 +85,8 @@ class MentorSessionSerializer(serializers.ModelSerializer):
         return data
 
     def get_price(self, obj):
+        if not obj.session_length:
+            return None
         minutes = obj.session_length / 60  # seconds
         segments = ceil(minutes / 15)
         price = segments * obj.mentor.rate
@@ -99,3 +105,10 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "username": obj.client.username,
             "full_name": obj.client.get_full_name()
         }
+
+    def get_session_url(self, obj):
+        # Returns the URL for the call on the frontend
+        domain = "https://domain.com"
+        if settings.DEBUG:
+            domain = "http://localhost:3000"
+        return domain + "/sessions/" + str(obj.id)

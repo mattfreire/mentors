@@ -46,10 +46,10 @@ class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin,
         )
 
     def perform_create(self, serializer):
-        mentor_session = serializer.save(client=self.request.user)
-        MentorSessionEvent.objects.create(
-            mentor_session=mentor_session
-        )
+        serializer.save(mentor=self.request.user.mentor)
+        # MentorSessionEvent.objects.create(
+        #     mentor_session=mentor_session
+        # )
 
     @action(detail=False, methods=["get"])
     def client_session_history(self, request):

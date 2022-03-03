@@ -102,12 +102,20 @@ const navbar = () => {
                       <Menu.Items
                         className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <Menu.Item>
+                          <div className="block px-4 py-2 text-sm text-gray-700">
+                            <p>
+                              <span className="block mb-0.5 text-xs text-gray-500">Signed in as</span>
+                              <span className="font-semibold">{user.username}</span>
+                            </p>
+                          </div>
+                        </Menu.Item>
+                        <Menu.Item>
                           {({active}) => (
                             <Link href="/profile/u">
                               <a
                                 className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
                               >
-                                Your Profile
+                                User Profile
                               </a>
                             </Link>
                           )}

@@ -6,9 +6,11 @@ import {AuthContext} from "../contexts/AuthContext";
 
 
 function Mentor({ mentor }) {
+  const {user} = useContext(AuthContext)
+
   return (
     <div className="py-3 px-3 border border-gray-200 shadow-sm mt-3">
-      <Link href={`/mentors/${mentor.user.username}`}>
+      <Link href={user.username === mentor.user.username ? "/profile/m" : `/mentors/${mentor.user.username}`}>
         <h3 className="text-xl font-bold text-gray-900">{mentor.user.username}</h3>
       </Link>
       <p className="text-lg text-gray-900">{mentor.title}</p>
