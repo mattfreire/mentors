@@ -81,7 +81,7 @@ function NewSession({ mentorSession }) {
         {client && mentor && (
           <ClientChatbox
             user={user}
-            other={user.id === mentor.user.id ? client : mentor.user} />
+            other={mentorSession.other_user} />
         )}
       </div>
       <div>
