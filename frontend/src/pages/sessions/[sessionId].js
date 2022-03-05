@@ -1,13 +1,27 @@
 import {useRouter} from 'next/router';
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {API_URL} from "../../config";
 import {AuthContext} from "../../contexts/AuthContext";
 import Link from "next/link";
 import {useStopwatch} from "react-timer-hook";
+import useSWR, {SWRConfig} from "swr";
+import {ClientChatbox} from "../../containers/ClientChatbox";
 
-function NewSession() {
+
+function NewSession({ mentorSession }) {
+  const { user, accessToken } = useContext(AuthContext)
   const [sessionEnded, setSessionEnded] = useState(false)
-  const [mentorSession, setMentorSession] = useState(null)
+  const fetcher = (url) => {
+    return fetch(url, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      }
+    }).then((res) => res.json());
+  }
+  const { data: client } = useSWR(mentorSession && mentorSession.client_profile ? `${API_URL}/api/users/${mentorSession.client_profile.username}/`: null, fetcher)
+  const { data: mentor } = useSWR(mentorSession && mentorSession.mentor_profile ? `${API_URL}/api/mentors/${mentorSession.mentor_profile.username}/`: null, fetcher)
   const {
     seconds,
     minutes,
@@ -18,34 +32,7 @@ function NewSession() {
     pause,
   } = useStopwatch({ autoStart: false });
 
-  async function createSession() {
-    try {
-      const date = new Date()
-      const startTime = date.toTimeString()
-      const body = {
-        start_time: startTime,
-        mentor: mentor.id
-      }
-      const apiRes = await fetch(`${API_URL}/api/sessions/`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(body)
-      });
-      if (apiRes.status === 201) {
-        const data = await apiRes.json();
-        start()
-        setMentorSession(data)
-      }
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
-  async function pauseSession() {
+  async function startOrPauseSession() {
     try {
       const apiRes = await fetch(`${API_URL}/api/sessions/${mentorSession.id}/pause/`, {
         method: "POST",
@@ -56,7 +43,7 @@ function NewSession() {
         },
       });
       if (apiRes.status === 200) {
-        const data = await apiRes.json();
+        await apiRes.json();
         if (isRunning) {
           pause()
         } else {
@@ -89,81 +76,146 @@ function NewSession() {
   }
 
   return (
-    <div style={{textAlign: 'center'}}>
-      <div style={{fontSize: '100px'}}>
-        <span>{days}</span>:<span>{hours}</span>:<span>{minutes}</span>:<span>{seconds}</span>
+    <div className="flex">
+      <div>
+        {client && mentor && (
+          <ClientChatbox
+            user={user}
+            other={user.id === mentor.user.id ? client : mentor.user} />
+        )}
       </div>
-      <p>{isRunning ? 'Running' : 'Not running'}</p>
-      {sessionEnded && (
-        <div>
-          <h3>Your session has ended!</h3>
-          <p>Please click here to <Link href={`/payment/${mentorSession.id}`}>
-                <a>
-                    pay
-                </a>
-            </Link> for the session</p>
+      <div>
+        <div style={{textAlign: 'center'}}>
+          {mentorSession && (
+            <div>
+              {mentorSession.client_profile.username === user.username && (
+                <h3>You are the client</h3>
+              )}
+              {mentorSession.mentor_profile.username === user.username && (
+                <h3>You are the mentor</h3>
+              )}
+            </div>
+          )}
+          <div style={{fontSize: '100px'}}>
+            <span>{days}</span>:<span>{hours}</span>:<span>{minutes}</span>:<span>{seconds}</span>
+          </div>
+          <p>{isRunning ? 'Running' : 'Not running'}</p>
+          {sessionEnded && (
+            <div>
+              <h3>Your session has ended!</h3>
+              <p>Please click here to <Link href={`/payment/${mentorSession.id}`}>
+                    <a>
+                        pay
+                    </a>
+                </Link> for the session</p>
+            </div>
+          )}
+          {mentorSession.events.length > 0 ? (
+            <div>
+              <button onClick={startOrPauseSession}>{isRunning ? "Pause" : "Resume"}</button>
+              <button onClick={endSession}>End</button>
+            </div>
+          ) : (
+            <button onClick={startOrPauseSession}>Start</button>
+          )}
         </div>
-      )}
-      {mentorSession ? (
-        <div>
-          <button onClick={pauseSession}>{isRunning ? "Pause" : "Resume"}</button>
-          <button onClick={endSession}>End</button>
-        </div>
-      ) : (
-        <button onClick={createSession}>Start</button>
-      )}
+      </div>
     </div>
   )
 }
 
-const Review = ({mentorSession, accessToken}) => {
+function SessionReview({ mentorSession }) {
+  return (
+    <div className='container-fluid py-3'>
+      <h1 className='display-5 fw-bold'>
+        Review
+      </h1>
+      <div className='fs-4 mt-3'>
+        Thanks for paying for the session: {mentorSession.id}
+      </div>
+    </div>
+  )
+}
+
+function Session() {
   const router = useRouter();
-  const {user, loading} = useContext(AuthContext)
+  const [sessionId, setSessionId] = useState(null)
+  const {user, accessToken, loading} = useContext(AuthContext)
+
+  useEffect(()=>{
+    if(!router.isReady) return;
+    const { query } = router
+    setSessionId(query.sessionId)
+  }, [router.isReady]);
+
+  const fetcher = (url) => {
+    return fetch(url, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      }
+    }).then((res) => res.json());
+  }
+
+  const { data: mentorSession, error } = useSWR((sessionId !== undefined && sessionId !== null) ? `${API_URL}/api/sessions/${sessionId}/` : null, fetcher)
+  const { data: client } = useSWR(mentorSession && mentorSession.client_profile ? `${API_URL}/api/users/${mentorSession.client_profile.username}/`: null, fetcher)
+  const { data: mentor } = useSWR(mentorSession && mentorSession.mentor_profile ? `${API_URL}/api/mentors/${mentorSession.mentor_profile.username}/`: null, fetcher)
 
   if (typeof window !== 'undefined' && !user && !loading)
     router.push('/login');
 
+  if (error || mentorSession && mentorSession.code) {
+    return "Error!"
+  }
+
+  if (!mentorSession) {
+    return "Loading..."
+  }
+
+  if (mentorSession.completed) {
+    return <SessionReview mentorSession={mentorSession} />
+  }
+
   return (
     <div className='p-5 bg-light rounded-3'>
-      <div className='container-fluid py-3'>
-        <h1 className='display-5 fw-bold'>
-          Review
-        </h1>
-        <div className='fs-4 mt-3'>
-          Thanks for paying for the session: {mentorSession.id}
-        </div>
-      </div>
+      <NewSession mentorSession={mentorSession} />
     </div>
   );
-};
+}
 
-export default Review;
+function SessionPage({ fallback }) {
+  return (
+    <SWRConfig value={{ fallback }}>
+      <Session />
+    </SWRConfig>
+  )
+}
+
+export default SessionPage;
 
 export async function getServerSideProps(context) {
   const {req, query} = context
   const {cookies} = req
   const {sessionId} = query
-  let data = []
-  try {
-    const apiRes = await fetch(`${API_URL}/api/sessions/${sessionId}/`, {
-      method: "GET",
+  const sessionAPI = `${API_URL}/api/sessions/${sessionId}/`;
+  const fetcher = (url) => {
+    return fetch(url, {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: `Bearer ${cookies.access}`,
       }
-    });
-    if (apiRes.status === 200) {
-      data = await apiRes.json();
-    }
-  } catch (err) {
-    console.error(err)
+    }).then((res) => res.json());
   }
+  const data = await fetcher(sessionAPI);
   return {
     props: {
-      mentorSession: data,
       protected: true,
-      accessToken: cookies.access
+      fallback: {
+        [sessionAPI]: data
+      }
     },
   }
+
 }
