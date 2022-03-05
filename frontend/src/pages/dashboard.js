@@ -86,7 +86,6 @@ class Inbox extends React.Component {
       });
       if (apiRes.status === 201) {
         const data = await apiRes.json();
-        console.log(data)
         const conversation = session.getOrCreateConversation(
           Talk.oneOnOneId(
             this.props.user.id.toString(),

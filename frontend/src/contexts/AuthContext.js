@@ -6,7 +6,10 @@ const DefaultProps = {
   login: () => null,
   logout: () => null,
   register: () => null,
-  user: null
+  user: null,
+  setUser: () => null,
+  accessToken: null,
+  setAccessToken: () => null
 };
 
 export const AuthContext = createContext(DefaultProps);
@@ -14,12 +17,14 @@ export const AuthContext = createContext(DefaultProps);
 export const AuthContextProvider = ({children, pageProps}) => {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
   const router = useRouter();
 
   useEffect(async () => {
     setLoading(true)
     try {
-      await AuthService.refresh()
+      const tokenRes = await AuthService.refresh()
+      setAccessToken(tokenRes.data.accessToken)
       await getUser()
     } catch (e) {
       setUser(null)
@@ -33,7 +38,8 @@ export const AuthContextProvider = ({children, pageProps}) => {
       // Refresh token every 25 minutes
       try {
         console.log("Refreshing access token")
-        await AuthService.refresh()
+        const tokenRes = await AuthService.refresh()
+        setAccessToken(tokenRes.data.accessToken)
       } catch (e) {
         console.log(e)
       }
@@ -55,7 +61,8 @@ export const AuthContextProvider = ({children, pageProps}) => {
   }
 
   async function login(username, password) {
-    await AuthService.login(username, password)
+    const res = await AuthService.login(username, password)
+    setAccessToken(res.data.accessToken)
     await getUser()
   }
 
@@ -69,7 +76,7 @@ export const AuthContextProvider = ({children, pageProps}) => {
   }
 
   return (
-    <AuthContext.Provider value={{user, login, logout, register, loading, setUser}}>
+    <AuthContext.Provider value={{user, login, logout, register, loading, setUser, accessToken, setAccessToken}}>
       {children}
     </AuthContext.Provider>
   );

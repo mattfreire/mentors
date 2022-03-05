@@ -21,12 +21,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "username", "first_name", "last_name", "name", "url", "profile_picture"]
+        fields = ["id", "username", "first_name", "last_name", "name", "profile_picture"]
         read_only_fields = ["id", "username", "profile_picture"]
-
-        extra_kwargs = {
-            "url": {"view_name": "api:user-detail", "lookup_field": "username"}
-        }
 
     def get_profile_picture(self, obj):
         return MentorProfilePictureSerializer(obj.mentor, context=self.context).data["profile_picture"]

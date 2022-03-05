@@ -48,6 +48,7 @@ export default async (req, res) => {
 
         return res.status(200).json({
           success: "Refresh request successful",
+          accessToken: data.access
         });
       } else {
         return res.status(apiRes.status).json({

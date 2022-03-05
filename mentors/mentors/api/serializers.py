@@ -4,7 +4,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent
-from mentors.users.serializers import UserSerializer
+from mentors.users.api.serializers import UserSerializer
 
 
 class MentorSerializer(serializers.ModelSerializer):
@@ -27,7 +27,7 @@ class MentorSerializer(serializers.ModelSerializer):
         )
 
     def get_user(self, obj):
-        return UserSerializer(obj.user).data
+        return UserSerializer(obj.user, context=self.context).data
 
 
 class MentorSessionEventSerializer(serializers.ModelSerializer):
@@ -51,6 +51,7 @@ class MentorSessionSerializer(serializers.ModelSerializer):
     mentor_profile = serializers.SerializerMethodField()
     client_profile = serializers.SerializerMethodField()
     session_url = serializers.SerializerMethodField()
+    other_user = serializers.SerializerMethodField()
 
     class Meta:
         model = MentorSession
@@ -66,7 +67,8 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "price",
             "mentor_profile",
             "client_profile",
-            "session_url"
+            "session_url",
+            "other_user"
         )
         read_only_fields = (
             "id",
@@ -76,8 +78,18 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "price",
             "mentor_profile",
             "client_profile",
-            "session_url"
+            "session_url",
+            "other_user"
         )
+
+    def get_other_user(self, obj):
+        me = self.context["request"].user
+        if me.id == obj.client.id:
+            # Then I am the client so the other user is the mentor
+            other = obj.mentor.user
+        else:
+            other = obj.client
+        return UserSerializer(other, context=self.context).data
 
     def get_events(self, obj):
         events = obj.events.all()

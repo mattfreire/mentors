@@ -42,6 +42,7 @@ export default async (req, res) => {
 
         return res.status(200).json({
           success: "Logged in successfully",
+          accessToken: data.access
         });
       } else {
         return res.status(apiRes.status).json({

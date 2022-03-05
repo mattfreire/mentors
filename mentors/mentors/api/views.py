@@ -25,6 +25,9 @@ class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, Generi
     queryset = Mentor.objects.filter(is_active=True)
     lookup_field = "user__username"
 
+    def get_serializer_context(self):
+        return {"request": self.request}
+
     def update(self, request, *args, **kwargs):
         self.queryset = Mentor.objects.filter(user=request.user)
         return super(MentorViewSet, self).update(request, *args, **kwargs)
@@ -47,9 +50,6 @@ class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin,
 
     def perform_create(self, serializer):
         serializer.save(mentor=self.request.user.mentor)
-        # MentorSessionEvent.objects.create(
-        #     mentor_session=mentor_session
-        # )
 
     @action(detail=False, methods=["get"])
     def client_session_history(self, request):
@@ -66,7 +66,18 @@ class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin,
     @action(detail=True, methods=["post"])
     def pause(self, request, id):
         mentor_session: MentorSession = get_object_or_404(MentorSession, id=id)
-        event = mentor_session.events.all().order_by("-start_time")[0]
+
+        if mentor_session.completed:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": "This session is finished. Please create a new session."})
+
+        events = mentor_session.events.all().order_by("-start_time")
+        if not events.exists():
+            MentorSessionEvent.objects.create(mentor_session=mentor_session)
+            serializer = self.serializer_class(mentor_session, context={"request": request})
+            return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+        event = events[0]
+
         if event.end_time:
             # Resuming
             MentorSessionEvent.objects.create(mentor_session=mentor_session)
@@ -83,6 +94,10 @@ class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin,
     @action(detail=True, methods=["post"])
     def end(self, request, id):
         mentor_session: MentorSession = get_object_or_404(MentorSession, id=id)
+
+        if mentor_session.completed:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": "This session is finished. Please create a new session."})
+
         event = mentor_session.events.all().order_by("-start_time")[0]
         end_time = make_aware(datetime.datetime.now())
 

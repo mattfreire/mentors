@@ -19,7 +19,11 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
 
     def get_queryset(self, *args, **kwargs):
         assert isinstance(self.request.user.id, int)
-        return self.queryset.filter(id=self.request.user.id)
+        return self.queryset
+
+    def update(self, request, *args, **kwargs):
+        self.queryset = self.queryset.filter(id=self.request.user.id)
+        return super(UserViewSet, self).update(request, *args, **kwargs)
 
     @action(detail=False)
     def me(self, request):
