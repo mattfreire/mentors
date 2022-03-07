@@ -1,13 +1,12 @@
 import {useRouter} from 'next/router';
-import {useContext} from "react";
+import React, {useContext} from "react";
 import {AuthContext} from "../../../contexts/AuthContext";
-import {UserProfileNavbar} from "../../../components/UserProfileNavbar";
 import {API_URL} from "../../../config";
+import {DashboardLayout} from "../../../components/DashboardLayout";
 
-
-const UserBilling = ({accessToken}) => {
+function UserBilling() {
   const router = useRouter();
-  const {user, loading} = useContext(AuthContext)
+  const {user, accessToken, loading} = useContext(AuthContext)
 
   if (typeof window !== 'undefined' && !user && !loading)
     router.push('/login');
@@ -32,29 +31,25 @@ const UserBilling = ({accessToken}) => {
   }
 
   return (
-    <div className='p-5 bg-light rounded-3'>
-      <div className='container-fluid py-3'>
-        <h1 className='display-5 fw-bold'>
-          User Profile
-        </h1>
-        <UserProfileNavbar/>
-      </div>
+    <DashboardLayout client>
       <div>
-       <button onClick={createCustomerPortalSession}>Go to Customer Portal</button>
+        <button className="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded text-white" onClick={createCustomerPortalSession}>
+          Go to Customer Portal
+        </button>
+        <p className="mt-3 text-gray-600">The customer portal is where you can update your payment methods, view invoices and manage your billing profile.
+        <br />It is a secure session hosted by Stripe.</p>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
 export default UserBilling;
 
-export async function getServerSideProps(context) {
-  const {req} = context
-  const {cookies} = req
+export async function getServerSideProps() {
   return {
     props: {
       protected: true,
-      accessToken: cookies.access ? cookies.access : null
     },
   }
 }
+

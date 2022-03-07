@@ -1,6 +1,8 @@
+import datetime
 from math import ceil
 
 from django.conf import settings
+from django.utils.timezone import make_aware
 from rest_framework import serializers
 
 from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent
@@ -31,6 +33,8 @@ class MentorSerializer(serializers.ModelSerializer):
 
 
 class MentorSessionEventSerializer(serializers.ModelSerializer):
+    current_session_length = serializers.SerializerMethodField()
+
     class Meta:
         model = MentorSessionEvent
         fields = (
@@ -38,11 +42,21 @@ class MentorSessionEventSerializer(serializers.ModelSerializer):
             "start_time",
             "end_time",
             "session_length",
+            "current_session_length"
         )
         read_only_fields = (
             "id",
             "session_length",
+            "current_session_length"
         )
+
+    def get_current_session_length(self, obj):
+        end_time = make_aware(datetime.datetime.now())
+        if obj.end_time:
+            end_time = obj.end_time
+
+        session_length_time = end_time - obj.start_time
+        return session_length_time.seconds
 
 
 class MentorSessionSerializer(serializers.ModelSerializer):
@@ -52,6 +66,7 @@ class MentorSessionSerializer(serializers.ModelSerializer):
     client_profile = serializers.SerializerMethodField()
     session_url = serializers.SerializerMethodField()
     other_user = serializers.SerializerMethodField()
+    current_session_length = serializers.SerializerMethodField()
 
     class Meta:
         model = MentorSession
@@ -68,7 +83,9 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "mentor_profile",
             "client_profile",
             "session_url",
-            "other_user"
+            "other_user",
+            "current_session_length",
+            "paid"
         )
         read_only_fields = (
             "id",
@@ -79,8 +96,23 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "mentor_profile",
             "client_profile",
             "session_url",
-            "other_user"
+            "other_user",
+            "current_session_length",
+            "paid"
         )
+
+    def get_current_session_length(self, obj):
+        current_length = 0
+        for event in obj.events.all():
+            if event.end_time:
+                current_length += event.session_length
+            else:
+                # calculate time between now and session start time
+                end_time = make_aware(datetime.datetime.now())
+                start_time = event.start_time
+                session_length_time = end_time - start_time
+                current_length += session_length_time.seconds
+        return current_length
 
     def get_other_user(self, obj):
         me = self.context["request"].user
@@ -92,7 +124,7 @@ class MentorSessionSerializer(serializers.ModelSerializer):
         return UserSerializer(other, context=self.context).data
 
     def get_events(self, obj):
-        events = obj.events.all()
+        events = obj.events.order_by("start_time")
         data = MentorSessionEventSerializer(events, many=True).data
         return data
 

@@ -47,6 +47,7 @@ export default async (req, res) => {
       } else {
         return res.status(apiRes.status).json({
           error: "Authentication failed",
+          data
         });
       }
     } catch (err) {

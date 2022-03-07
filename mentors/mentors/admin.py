@@ -2,7 +2,8 @@ from django.contrib import admin
 from .models import Mentor, MentorSession, MentorSessionEvent
 
 
-admin.site.register(Mentor)
+class MentorAdmin(admin.ModelAdmin):
+    list_display = ["user", "is_active", "approved", "rate"]
 
 
 class MentorSessionEventInLineAdmin(admin.TabularInline):
@@ -14,5 +15,6 @@ class MentorSessionAdmin(admin.ModelAdmin):
     inlines = [MentorSessionEventInLineAdmin]
 
 
+admin.site.register(Mentor, MentorAdmin)
 admin.site.register(MentorSession, MentorSessionAdmin)
 admin.site.register(MentorSessionEvent)

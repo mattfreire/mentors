@@ -3,8 +3,11 @@ from math import ceil
 
 import stripe
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.http import HttpResponse
 from django.utils.timezone import make_aware
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import action
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
@@ -12,17 +15,19 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateMode
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
+from stripe.error import SignatureVerificationError
 
 from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent
 from .serializers import MentorSerializer, MentorSessionSerializer
 
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+User = get_user_model()
 
 
 class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = MentorSerializer
-    queryset = Mentor.objects.filter(is_active=True)
+    queryset = Mentor.objects.filter(is_active=True, approved=True)
     lookup_field = "user__username"
 
     def get_serializer_context(self):
@@ -147,6 +152,7 @@ class CreateStripeCheckoutView(APIView):
         if settings.DEBUG:
             domain = "http://localhost:3000"
         session = stripe.checkout.Session.create(
+            customer=request.user.stripe_customer_id,
             line_items=[{
                 'price_data': {
                     'currency': "usd",
@@ -160,13 +166,16 @@ class CreateStripeCheckoutView(APIView):
             }],
             mode='payment',
             success_url=domain + '/sessions/' + str(mentor_session.id),
-            cancel_url=domain + '/payment/' + str(mentor_session.id),
+            cancel_url=domain + '/sessions/' + str(mentor_session.id),
             payment_intent_data={
                 'application_fee_amount': 123,
                 'transfer_data': {
                     'destination': mentor_session.mentor.user.stripe_account_id,
                 },
             },
+            metadata={
+                "session_id": mentor_session.id
+            }
         )
         return Response({"url": session["url"]})
 
@@ -185,3 +194,68 @@ class StripeCustomerPortalLinkView(APIView):
         )
 
         return Response({"url": session["url"]})
+
+
+@csrf_exempt
+def stripe_webhook(request):
+    payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+    CHECKOUT_SESSION_COMPLETED = "checkout.session.completed"
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError as e:
+        # mail_service.report_mail(
+        #     subject="Unsuccessful Stripe webhook.",
+        #     message=f"An Invalid payload occurred: {e}"
+        # )
+        return HttpResponse(status=400)
+
+    except SignatureVerificationError as e:
+        # mail_service.report_mail(
+        #     subject="Unsuccessful Stripe webhook.",
+        #     message=f"An Invalid signature occurred: {e}",
+        # )
+        return HttpResponse(status=400)
+
+    event_type = event['type']
+
+    if event_type == CHECKOUT_SESSION_COMPLETED:
+        session_id = event["data"]["object"]["metadata"]["session_id"]
+        customer_id = event["data"]["object"]["customer"]
+
+        user = User.objects.get(stripe_customer_id=customer_id)
+        session = MentorSession.objects.get(id=session_id)
+        session.paid = True
+        session.save()
+
+        # TODO send mail to client thanking for payment
+        # TODO send mail to mentor for payment confirmation
+
+    return HttpResponse(status=200)
+
+
+class StripeAccountBalance(APIView):
+    def get(self, request, *args, **kwargs):
+        stripe_account = request.user.stripe_account_id
+        balance = stripe.Balance.retrieve(stripe_account=stripe_account)
+        return Response(balance)
+
+
+class StripeAccountPayouts(APIView):
+    def get(self, request, *args, **kwargs):
+        stripe_account = request.user.stripe_account_id
+        payouts = stripe.Payout.list(stripe_account=stripe_account)
+        return Response(payouts)
+
+
+
+
+
+
+
+
+
+

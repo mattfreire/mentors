@@ -14,9 +14,10 @@ class Mentor(models.Model):
     title = models.CharField(max_length=50)
     bio = models.TextField()
     profile_picture = models.ImageField(blank=True, null=True)
+    approved = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.username
+        return self.user.name
 
 
 class MentorSession(models.Model):
@@ -28,6 +29,7 @@ class MentorSession(models.Model):
     end_time = models.DateTimeField(blank=True, null=True)
     session_length = models.IntegerField(blank=True, null=True)  # seconds
     completed = models.BooleanField(default=False)
+    paid = models.BooleanField(default=False)
 
     def __str__(self):
         return self.mentor.user.username
@@ -38,8 +40,6 @@ class MentorSession(models.Model):
         event_sum = mentor_session.events\
             .all()\
             .aggregate(session_length_sum=Sum("session_length"))
-            # {"session_length_sum": 100}
-        print(event_sum)
         return event_sum["session_length_sum"]
 
 

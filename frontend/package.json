@@ -18,16 +18,12 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-drag-drop-files": "^2.3.4",
-    "react-loader-spinner": "^4.0.0",
-    "react-redux": "^7.2.4",
-    "react-timer-hook": "^3.0.5",
-    "redux": "^4.1.0",
-    "redux-devtools-extension": "^2.13.9",
-    "redux-thunk": "^2.3.0",
+    "react-transition-group": "^4.4.2",
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.4.1",
     "swr": "^1.2.2",
-    "talkjs": "^0.15.1"
+    "talkjs": "^0.15.1",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.4.0",

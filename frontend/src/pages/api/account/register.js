@@ -2,12 +2,21 @@ import { API_URL } from "../../../config/index";
 
 export default async (req, res) => {
   if (req.method === "POST") {
-    const { username, password, re_password } = req.body;
+    const { username,
+      email,
+      password,
+      re_password,
+      first_name,
+      last_name
+    } = req.body;
 
     const body = JSON.stringify({
       username,
+      email,
       password,
       re_password,
+      first_name,
+      last_name
     });
 
     try {
@@ -17,15 +26,16 @@ export default async (req, res) => {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: body,
+        body,
       });
 
       const data = await apiRes.json();
 
       if (apiRes.status === 201) {
-        return res.status(201).json({ success: data.success });
+        return res.status(201).json({ success: true });
       } else {
         return res.status(apiRes.status).json({
+          data,
           error: data.error,
         });
       }

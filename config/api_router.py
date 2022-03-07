@@ -2,7 +2,16 @@ from django.conf import settings
 from django.urls import path
 from rest_framework.routers import DefaultRouter, SimpleRouter
 
-from mentors.mentors.api.views import MentorViewSet, StripeAccountLinkView, MentorSessionViewSet, CreateStripeCheckoutView, StripeCustomerPortalLinkView
+from mentors.mentors.api.views import (
+    MentorViewSet,
+    StripeAccountLinkView,
+    MentorSessionViewSet,
+    CreateStripeCheckoutView,
+    StripeCustomerPortalLinkView,
+    stripe_webhook,
+    StripeAccountBalance,
+    StripeAccountPayouts
+)
 from mentors.users.api.views import UserViewSet, LoadUserView
 
 if settings.DEBUG:
@@ -22,4 +31,7 @@ urlpatterns += [
     path("stripe-connect/", StripeAccountLinkView.as_view()),
     path("stripe-checkout/", CreateStripeCheckoutView.as_view()),
     path("stripe-customer-portal/", StripeCustomerPortalLinkView.as_view()),
+    path("stripe-account-balance/", StripeAccountBalance.as_view()),
+    path("stripe-account-payouts/", StripeAccountPayouts.as_view()),
+    path("stripe-webhook/", stripe_webhook)
 ]

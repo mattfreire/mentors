@@ -32,8 +32,12 @@ const SocketHandler = (req, res) => {
         socket.broadcast.emit('update-user-connection', {user: msg.user, status: "offline"})
       });
 
-      socket.on('pause-session', () => {
-        socket.broadcast.emit('update-pause-session')
+      socket.on('pause-session', (msg) => {
+        socket.broadcast.emit('update-pause-session', msg)
+      })
+
+      socket.on('end-session', () => {
+        socket.broadcast.emit('update-end-session')
       })
 
     })

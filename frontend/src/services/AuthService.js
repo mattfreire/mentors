@@ -4,15 +4,31 @@ class AuthService {
   // This class deals with sending requests to the proxy API
 
   async login(username, password) {
-    return await axios.post('/api/account/login', {username, password})
+    return await fetch('/api/account/login',
+      {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({username, password})
+      }
+    )
   }
 
   async logout() {
     return await axios.post('/api/account/logout')
   }
 
-  async register(username, password, re_password) {
-    return await axios.post('/api/account/register', {username, password, re_password});
+  async register(username, email, password, re_password, first_name, last_name) {
+    return await fetch('/api/account/register',
+      {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({username, email, password, re_password, first_name, last_name})
+      }
+    );
   }
 
   async refresh() {

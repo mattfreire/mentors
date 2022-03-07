@@ -4,10 +4,11 @@ import useSWR, {SWRConfig, useSWRConfig} from "swr";
 import {useFormik} from "formik";
 import { FileUploader } from "react-drag-drop-files";
 import {AuthContext} from "../../contexts/AuthContext";
-import {MentorProfileNavbar} from "../../components/MentorProfileNavbar";
 import {API_URL} from "../../config";
+import {DashboardLayout} from "../../components/DashboardLayout";
 
-const MentorProfileForm = ({ mentor, accessToken }) => {
+function MentorProfileForm({ mentor }) {
+  const { accessToken } = useContext(AuthContext)
   const formik = useFormik({
     initialValues: {
       title: mentor.title,
@@ -39,7 +40,7 @@ const MentorProfileForm = ({ mentor, accessToken }) => {
 
         <div className="pt-8 space-y-6 sm:pt-10 sm:space-y-5">
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Mentor Profile Information</h3>
+            <h3 className="text-lg leading-6 font-medium text-gray-900">Profile Information</h3>
             <p className="mt-1 max-w-2xl text-sm text-gray-500">This information will be publicly displayed.</p>
           </div>
           <div className="space-y-6 sm:space-y-5">
@@ -92,10 +93,10 @@ const MentorProfileForm = ({ mentor, accessToken }) => {
   )
 }
 
-function MentorProfilePictureForm({ mentor, accessToken }) {
+function MentorProfilePictureForm({ mentor }) {
   const [file, setFile] = useState(null);
   const [imgPreview, setImgPreview] = useState(null)
-  const { user, setUser } = useContext(AuthContext)
+  const { user, setUser, accessToken } = useContext(AuthContext)
   const { mutate } = useSWRConfig()
 
   const fileTypes = ["JPEG", "PNG"];
@@ -167,7 +168,7 @@ function MentorProfilePictureForm({ mentor, accessToken }) {
   return (
     <div className="pt-8 space-y-6 sm:pt-10 sm:space-y-5">
       <div>
-        <h3 className="text-lg leading-6 font-medium text-gray-900">Mentor Profile Picture</h3>
+        <h3 className="text-lg leading-6 font-medium text-gray-900">Profile Picture</h3>
         <p className="mt-1 max-w-2xl text-sm text-gray-500">This picture will be publicly displayed.</p>
       </div>
       <div className="space-y-6 sm:space-y-5">
@@ -222,7 +223,8 @@ function MentorProfilePictureForm({ mentor, accessToken }) {
   );
 }
 
-function MentorActiveForm({ mentor, accessToken }) {
+function MentorActiveForm({ mentor }) {
+  const { accessToken } = useContext(AuthContext)
   const { mutate } = useSWRConfig()
 
   async function handleSave() {
@@ -240,7 +242,7 @@ function MentorActiveForm({ mentor, accessToken }) {
         body
       });
       if (apiRes.status === 200) {
-        mutate(`${API_URL}/api/mentors/me/`, { ...mentor, is_active: !mentor.is_active })
+        await mutate(`${API_URL}/api/mentors/me/`, { ...mentor, is_active: !mentor.is_active })
       }
     } catch (err) {
       console.error(err)
@@ -258,10 +260,19 @@ function MentorActiveForm({ mentor, accessToken }) {
   )
 }
 
-const MentorProfile = ({ accessToken }) => {
+function MentorProfile() {
     const router = useRouter();
-    const { user, loading } = useContext(AuthContext)
-    const { data: mentor, error} = useSWR(`${API_URL}/api/mentors/me/`)
+    const { user, accessToken, loading } = useContext(AuthContext)
+    const fetcher = (url) => {
+      return fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        }
+      }).then((res) => res.json());
+    }
+    const { data: mentor, error} = useSWR(`${API_URL}/api/mentors/me/`, fetcher)
 
     if (error) return "An error has occurred.";
     if (!mentor) return "Loading...";
@@ -270,29 +281,23 @@ const MentorProfile = ({ accessToken }) => {
         router.push('/login');
 
     return (
-      <div className='p-5 bg-light rounded-3'>
-        <div className='container-fluid py-3'>
-            <h1 className='display-5 fw-bold'>
-                Mentor Profile
-            </h1>
-            <MentorProfileNavbar />
-        </div>
-        <MentorProfilePictureForm accessToken={accessToken} mentor={mentor} />
-        <MentorProfileForm accessToken={accessToken} mentor={mentor} />
-        <MentorActiveForm accessToken={accessToken} mentor={mentor} />
-      </div>
+      <DashboardLayout>
+        <MentorProfilePictureForm mentor={mentor} />
+        <MentorProfileForm mentor={mentor} />
+        <MentorActiveForm mentor={mentor} />
+      </DashboardLayout>
     );
 };
 
-function MentorProfileContainer({ accessToken, fallback }) {
+function MentorProfilePage({ fallback }) {
   return (
     <SWRConfig value={{ fallback }}>
-      <MentorProfile accessToken={accessToken} />
+      <MentorProfile />
     </SWRConfig>
   )
 }
 
-export default MentorProfileContainer;
+export default MentorProfilePage;
 
 export async function getServerSideProps(context) {
   const {req} = context
@@ -311,7 +316,6 @@ export async function getServerSideProps(context) {
   return {
     props: {
       protected: true,
-      accessToken: cookies.access,
       fallback: {
         [API]: data
       }

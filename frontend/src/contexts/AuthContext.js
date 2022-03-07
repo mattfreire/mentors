@@ -29,7 +29,9 @@ export const AuthContextProvider = ({children, pageProps}) => {
     } catch (e) {
       setUser(null)
       setLoading(false)
-      router.push('/login')
+      if (router.route !== "/login" && router.route !== "/register") {
+        await router.push('/login')
+      }
     } finally {
       setLoading(false)
     }
@@ -44,7 +46,6 @@ export const AuthContextProvider = ({children, pageProps}) => {
         console.log(e)
       }
     }, 25 * 60 * 1000)
-
   }, [])
 
   async function getUser() {
@@ -56,14 +57,28 @@ export const AuthContextProvider = ({children, pageProps}) => {
     }
   }
 
-  async function register(username, password, re_password) {
-    return await AuthService.register(username, password, re_password);
+  async function register(username, email, password, re_password, first_name, last_name) {
+    try {
+      const res = await AuthService.register(username, email, password, re_password, first_name, last_name);
+      return await res.json()
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async function login(username, password) {
-    const res = await AuthService.login(username, password)
-    setAccessToken(res.data.accessToken)
-    await getUser()
+    try {
+      const res = await AuthService.login(username, password)
+      if (res.status === 200) {
+        const data = await res.json()
+        setAccessToken(data.accessToken)
+        await getUser()
+        return data
+      }
+      return await res.json()
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async function logout() {

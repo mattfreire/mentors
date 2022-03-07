@@ -1,12 +1,14 @@
 import {useRouter} from 'next/router';
-import {useContext} from "react";
+import React, {useContext} from "react";
 import Link from "next/link";
 import {AuthContext} from "../../../contexts/AuthContext";
-import {MentorProfileNavbar} from "../../../components/MentorProfileNavbar";
 import {useFormik} from "formik";
 import {API_URL} from "../../../config";
+import {DashboardLayout} from "../../../components/DashboardLayout";
+import useSWR, {SWRConfig} from "swr";
 
-function MentorRateForm({ mentor, accessToken }) {
+function MentorRateForm({ mentor }) {
+  const { accessToken } = useContext(AuthContext)
   const formik = useFormik({
     initialValues: {
       rate: mentor.rate / 100,
@@ -77,61 +79,69 @@ function MentorRateForm({ mentor, accessToken }) {
   )
 }
 
-const MentorBilling = ({ mentor, accessToken }) => {
+function MentorBilling() {
   const router = useRouter();
-  const {user, loading} = useContext(AuthContext)
+  const {user, accessToken, loading} = useContext(AuthContext)
+  const fetcher = (url) => {
+    return fetch(url, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      }
+    }).then((res) => res.json());
+  }
+  const {data: mentor} = useSWR(`${API_URL}/api/mentors/me/`, fetcher)
 
   if (typeof window !== 'undefined' && !user && !loading)
     router.push('/login');
 
   return (
-    <div className='p-5 bg-light rounded-3'>
-      <div className='container-fluid py-3'>
-        <h1 className='display-5 fw-bold'>
-          Billing
-        </h1>
-        <MentorProfileNavbar/>
-      </div>
+    <DashboardLayout>
       <div>
        <Link href='/stripe-connect'>
-          <a className="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded-sm text-white">
-              Connect Stripe Account
+          <a className="bg-indigo-500 hover:bg-indigo-600 px-3 py-2 rounded text-white">
+              Manage Stripe Account
           </a>
         </Link>
       </div>
       <div className="py-5">
-        <MentorRateForm mentor={mentor} accessToken={accessToken} />
+        <MentorRateForm mentor={mentor} />
       </div>
-    </div>
+    </DashboardLayout>
   );
-};
+}
 
-export default MentorBilling;
+function MentorBillingPage({fallback}) {
+  return (
+    <SWRConfig value={{fallback}}>
+      <MentorBilling />
+    </SWRConfig>
+  )
+}
+
+export default MentorBillingPage;
 
 export async function getServerSideProps(context) {
   const {req} = context
   const {cookies} = req
-  let data = []
-  try {
-    const apiRes = await fetch(`${API_URL}/api/mentors/me/`, {
-      method: "GET",
+  const API = `${API_URL}/api/mentors/me/`
+  const fetcher = (url) => {
+    return fetch(url, {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: `Bearer ${cookies.access}`,
       }
-    });
-    if (apiRes.status === 200) {
-      data = await apiRes.json();
-    }
-  } catch (err) {
-    console.error(err)
+    }).then((res) => res.json());
   }
+  const data = await fetcher(API);
   return {
     props: {
-      mentor: data,
       protected: true,
-      accessToken: cookies.access
+      fallback: {
+        [API]: data
+      }
     },
   }
 }
