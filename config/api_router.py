@@ -10,9 +10,10 @@ from mentors.mentors.api.views import (
     StripeCustomerPortalLinkView,
     stripe_webhook,
     StripeAccountBalance,
-    StripeAccountPayouts
+    StripeAccountPayouts,
+    ReviewViewSet
 )
-from mentors.users.api.views import UserViewSet, LoadUserView
+from mentors.users.api.views import UserViewSet
 
 if settings.DEBUG:
     router = DefaultRouter()
@@ -22,12 +23,12 @@ else:
 router.register("users", UserViewSet)
 router.register("mentors", MentorViewSet)
 router.register("sessions", MentorSessionViewSet)
+router.register("reviews", ReviewViewSet)
 
 
 app_name = "api"
 urlpatterns = router.urls
 urlpatterns += [
-    path("users/me/", LoadUserView.as_view()),
     path("stripe-connect/", StripeAccountLinkView.as_view()),
     path("stripe-checkout/", CreateStripeCheckoutView.as_view()),
     path("stripe-customer-portal/", StripeCustomerPortalLinkView.as_view()),

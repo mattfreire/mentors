@@ -93,6 +93,7 @@ function RegisterPage() {
                 errors={formik.errors.email}
                 value={formik.values.email}
                 handleChange={formik.handleChange}
+                touched={formik.touched.email}
                 fieldType={"email"}
                 fieldName={"email"}
                 placeholder="Email"
@@ -102,6 +103,7 @@ function RegisterPage() {
                 errors={formik.errors.username}
                 value={formik.values.username}
                 handleChange={formik.handleChange}
+                touched={formik.touched.username}
                 fieldType={"text"}
                 fieldName={"username"}
                 placeholder="joesoap"
@@ -111,6 +113,7 @@ function RegisterPage() {
                 errors={formik.errors.first_name}
                 value={formik.values.first_name}
                 handleChange={formik.handleChange}
+                touched={formik.touched.first_name}
                 fieldType={"text"}
                 fieldName={"first_name"}
                 placeholder="Joe"
@@ -120,6 +123,7 @@ function RegisterPage() {
                 errors={formik.errors.last_name}
                 value={formik.values.last_name}
                 handleChange={formik.handleChange}
+                touched={formik.touched.last_name}
                 fieldType={"text"}
                 fieldName={"last_name"}
                 placeholder="Soap"
@@ -129,6 +133,7 @@ function RegisterPage() {
                 errors={formik.errors.password}
                 value={formik.values.password}
                 handleChange={formik.handleChange}
+                touched={formik.touched.password}
                 fieldType={"password"}
                 fieldName={"password"}
                 placeholder="password"
@@ -138,6 +143,7 @@ function RegisterPage() {
                 errors={formik.errors.re_password}
                 value={formik.values.re_password}
                 handleChange={formik.handleChange}
+                touched={formik.touched.re_password}
                 fieldType={"password"}
                 fieldName={"re_password"}
                 placeholder="password"

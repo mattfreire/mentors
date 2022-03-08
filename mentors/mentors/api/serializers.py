@@ -5,8 +5,29 @@ from django.conf import settings
 from django.utils.timezone import make_aware
 from rest_framework import serializers
 
-from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent
+from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent, Review
 from mentors.users.api.serializers import UserSerializer
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Review
+        fields = (
+            'id',
+            'session',
+            'description',
+            'rating',
+            'user'
+        )
+        read_only_fields = (
+            'id',
+            'user'
+        )
+
+    def get_user(self, obj):
+        return UserSerializer(obj.session.client, context=self.context).data
 
 
 class MentorSerializer(serializers.ModelSerializer):

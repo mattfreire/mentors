@@ -359,14 +359,118 @@ function SessionPayment({mentorSession}) {
   )
 }
 
+
+function ReviewForm({mentorSession}) {
+  const { accessToken } = useContext(AuthContext)
+  const router = useRouter()
+  const [review, setReview] = useState('')
+  const [star, setStar] = useState(3)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    try {
+      const body = JSON.stringify({
+        rating: star,
+        description: review,
+        session: mentorSession.id
+      })
+      const apiRes = await fetch(`${API_URL}/api/reviews/`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body
+      });
+      if (apiRes.status === 201) {
+        await apiRes.json();
+        await router.push('/profile/u/session-history')
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  return (
+    <form className="relative" onSubmit={handleSubmit}>
+      <div
+        className="border border-gray-300 shadow-sm overflow-hidden focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
+        <label htmlFor="review" className="sr-only">
+          Review
+        </label>
+        <textarea
+          rows={2}
+          name="review"
+          id="review"
+          className="mt-2 block w-full border-0 py-0 resize-none placeholder-gray-500 focus:ring-0 sm:text-sm"
+          placeholder={`Share your experience with ${mentorSession.mentor_profile.full_name}...`}
+          defaultValue={''}
+          value={review}
+          onChange={(e) => setReview(e.target.value)}
+        />
+
+        {/* Spacer element to match the height of the toolbar */}
+        <div aria-hidden="true">
+          <div className="py-2">
+            <div className="h-9"/>
+          </div>
+          <div className="h-px"/>
+          <div className="py-2">
+            <div className="py-px">
+              <div className="h-9"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 inset-x-px">
+        <div className="border-t border-gray-200 px-2 py-2 flex justify-between items-center space-x-3 sm:px-3">
+          <div className="flex">
+            <ul className="mt-1 flex justify-center">
+              {[1, 2, 3, 4, 5].map(i => (
+                <li key={i} onClick={() => setStar(i)} className="cursor-pointer">
+                  <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="star"
+                       className={classNames(
+                         star >= i ? "text-yellow-500" : "text-gray-300",
+                         "w-4 mr-1"
+                       )} role="img" xmlns="http://www.w3.org/2000/svg"
+                       viewBox="0 0 576 512">
+                    <path fill="currentColor"
+                          d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/>
+                  </svg>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex-shrink-0">
+            <button
+              type="submit"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  )
+}
+
+
 function SessionReview({mentorSession}) {
   return (
-    <div className='container-fluid py-3'>
-      <h1 className='display-5 fw-bold'>
-        Review
-      </h1>
-      <div className='fs-4 mt-3'>
-        Thanks for paying for the session: {mentorSession.id}
+    <div>
+      <div className="pb-5 border-b border-gray-200">
+        <h3 className="text-lg leading-6 font-medium text-gray-900">Review</h3>
+        <p className="mt-2 max-w-4xl text-sm text-gray-500">
+          Thank you for the session! Please consider leaving a review.
+        </p>
+      </div>
+      <div className='py-5 text-gray-800'>
+        <div className="flex flex-col">
+          <ReviewForm mentorSession={mentorSession}/>
+        </div>
       </div>
     </div>
   )

@@ -12,14 +12,15 @@ from rest_framework.decorators import action
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin, CreateModelMixin
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from stripe.error import SignatureVerificationError
 
-from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent
-from .serializers import MentorSerializer, MentorSessionSerializer
-
+from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent, Review
+from .permissions import IsSessionClientOrReadOnly
+from .serializers import MentorSerializer, MentorSessionSerializer, ReviewSerializer
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 User = get_user_model()
@@ -41,6 +42,25 @@ class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, Generi
     def me(self, request):
         serializer = self.serializer_class(request.user.mentor, context={"request": request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+
+class ReviewViewSet(RetrieveModelMixin, ListModelMixin, CreateModelMixin, GenericViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated, IsSessionClientOrReadOnly]
+    queryset = Review.objects.all()
+
+    def get_serializer_context(self):
+        return {"request": self.request}
+
+    def get_queryset(self):
+        queryset = Review.objects.all()
+        mentor = self.request.query_params.get('mentor')
+        client = self.request.query_params.get('client')
+        if mentor is not None:
+            queryset = queryset.filter(session__mentor=mentor)
+        if client is not None:
+            queryset = queryset.filter(session__client=client)
+        return queryset
 
 
 class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, CreateModelMixin, GenericViewSet):

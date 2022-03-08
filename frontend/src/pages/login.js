@@ -73,6 +73,7 @@ function LoginPage() {
                 errors={formik.errors.email}
                 value={formik.values.email}
                 handleChange={formik.handleChange}
+                touched={formik.touched.email}
                 fieldType={"email"}
                 fieldName={"email"}
                 placeholder="Email"
@@ -82,6 +83,7 @@ function LoginPage() {
                 errors={formik.errors.password}
                 value={formik.values.password}
                 handleChange={formik.handleChange}
+                touched={formik.touched.password}
                 fieldType={"password"}
                 fieldName={"password"}
                 placeholder="password"

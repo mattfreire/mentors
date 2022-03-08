@@ -4,7 +4,6 @@ from rest_framework.decorators import action
 from rest_framework import generics
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from .serializers import UserSerializer, RegisterSerializer
 
@@ -35,17 +34,3 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterSerializer
-
-
-class LoadUserView(APIView):
-    def get(self, request, format=None):
-        try:
-            user = request.user
-            user = UserSerializer(user, context={"request": request})
-
-            return Response({"user": user.data}, status=status.HTTP_200_OK)
-        except:
-            return Response(
-                {"error": "Something went wrong when trying to load user"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )

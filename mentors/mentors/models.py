@@ -54,3 +54,12 @@ class MentorSessionEvent(models.Model):
     def __str__(self):
         return str(self.id)
 
+
+class Review(models.Model):
+    session = models.OneToOneField(MentorSession, on_delete=models.CASCADE)
+    description = models.TextField()
+    rating = models.IntegerField(default=5)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.session)
