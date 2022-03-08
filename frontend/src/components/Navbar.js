@@ -4,10 +4,8 @@ import React, {useContext, Fragment} from "react";
 import {Disclosure, Menu, Transition} from '@headlessui/react'
 import {MenuIcon, XIcon} from '@heroicons/react/outline'
 import {AuthContext} from "../contexts/AuthContext";
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
+import {getProfilePicture} from "../utils/profilePic";
+import {classNames} from "../utils/classNames";
 
 export default function Navbar() {
   const router = useRouter();
@@ -108,8 +106,9 @@ export default function Navbar() {
                           className="bg-gray-50 rounded-full flex text-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-purple-500">
                           <span className="sr-only">Open user menu</span>
                           <img className="rounded-full h-8 w-8"
-                               src={user.profile_picture ? user.profile_picture : `https://avatars.dicebear.com/api/initials/${user.name}.svg`}
-                               alt=""/>
+                               src={getProfilePicture(user.profile_picture, user.name)}
+                               alt={user.username}
+                          />
                         </Menu.Button>
                       </div>
                       <Transition
@@ -202,8 +201,8 @@ export default function Navbar() {
                 <div className="px-5 flex items-center">
                   <div className="flex-shrink-0">
                     <img className="rounded-full h-10 w-10"
-                         src={user.profile_picture ? user.profile_picture : `https://avatars.dicebear.com/api/initials/${user.name}.svg`}
-                         alt=""/>
+                         src={getProfilePicture(user.profile_picture, user.name)}
+                         alt={user.username}/>
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium text-gray-800">{user.name}</div>

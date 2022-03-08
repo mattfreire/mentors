@@ -1,5 +1,6 @@
 import React from "react";
 import Talk from "talkjs";
+import {getProfilePicture} from "../utils/profilePic";
 
 export class ClientChatbox extends React.Component {
     constructor(props) {
@@ -28,8 +29,8 @@ export class ClientChatbox extends React.Component {
       const me = new Talk.User({
         id: user.id,
         name: user.first_name,
-        photoUrl: user.profile_picture ? user.profile_picture : `https://avatars.dicebear.com/api/initials/${user.name}.svg`,
-      });
+        photoUrl: getProfilePicture(user.profile_picture, user.name)
+      })
       return new Talk.Session({
         appId: "tIZMNNO1",
         me

@@ -1,8 +1,5 @@
 import {ExclamationCircleIcon} from "@heroicons/react/solid";
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
+import {classNames} from "../utils/classNames";
 
 export function FormField({ label, fieldName, fieldType, value, handleChange, errors, placeholder, touched }) {
   return (

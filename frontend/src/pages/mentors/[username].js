@@ -5,10 +5,9 @@ import {API_URL} from "../../config";
 import {AuthContext} from "../../contexts/AuthContext";
 import {ClientChatbox} from "../../containers/ClientChatbox";
 import {MentorProfileHeader} from "../../components/MentorProfileHeader";
+import {getProfilePicture} from "../../utils/profilePic";
+import {classNames} from "../../utils/classNames";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
 
 function Review({review}) {
   const stars = []
@@ -32,8 +31,8 @@ function Review({review}) {
     <li className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
       <div className="flex items-center space-x-4 lg:space-x-6">
         <img className="w-8 h-8 rounded-full lg:w-12 lg:h-12"
-             src={review.user.profile_picture ? review.user.profile_picture : `https://avatars.dicebear.com/api/initials/${review.user.name}.svg`}
-             alt=""/>
+             src={getProfilePicture(review.user.profile_picture, review.user.name)}
+             alt={review.user.username}/>
         <div className="font-medium">
           <h3>{review.name}</h3>
           <ul className="mt-1 flex justify-center">
@@ -73,16 +72,18 @@ function MentorOverview({mentor}) {
               {mentor.bio}
             </dd>
           </div>
-          <div className="sm:col-span-2">
-            <dt className="text-sm font-medium text-gray-500">Recent Sessions</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              <ul role="list" className="mt-3 border-t border-gray-200 rounded-md divide-y divide-gray-200">
-                {reviews?.map(review => (
-                  <Review review={review} key={review.id}/>
-                ))}
-              </ul>
-            </dd>
-          </div>
+          {reviews && reviews.length > 0 && (
+            <div className="sm:col-span-2">
+              <dt className="text-sm font-medium text-gray-500">Recent Sessions</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                <ul role="list" className="mt-3 border-t border-gray-200 rounded-md divide-y divide-gray-200">
+                  {reviews.map(review => (
+                    <Review review={review} key={review.id}/>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          )}
         </dl>
       </div>
     </div>

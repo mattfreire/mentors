@@ -5,10 +5,7 @@ import useSWR, {SWRConfig} from "swr";
 import {AuthContext} from "../../../contexts/AuthContext";
 import {API_URL} from "../../../config";
 import {DashboardLayout} from "../../../components/DashboardLayout";
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
+import {classNames} from "../../../utils/classNames";
 
 function ClientSessionHistory() {
   const router = useRouter();

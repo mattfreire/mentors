@@ -7,6 +7,8 @@ import { ChatIcon } from '@heroicons/react/solid'
 import {AuthContext} from "../contexts/AuthContext";
 import {API_URL} from "../config";
 import {DashboardLayout} from "../components/DashboardLayout";
+import {getProfilePicture} from "../utils/profilePic";
+import {classNames} from "../utils/classNames";
 
 class Inbox extends React.Component {
   constructor(props) {
@@ -38,9 +40,9 @@ class Inbox extends React.Component {
     const me = new Talk.User({
       id: user.id,
       name: user.first_name,
-      photoUrl: user.profile_picture ? user.profile_picture : `https://avatars.dicebear.com/api/initials/${user.name}.svg`,
+      photoUrl: getProfilePicture(user.profile_picture, user.name),
       role: "client"
-    });
+    })
     return new Talk.Session({
       appId: "tIZMNNO1",
       me
@@ -140,9 +142,6 @@ const statusStyles = {
   failed: 'bg-red-100 text-red-800',
 }
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
 
 function Dashboard() {
   const router = useRouter();

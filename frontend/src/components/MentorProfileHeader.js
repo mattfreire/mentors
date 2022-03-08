@@ -1,5 +1,6 @@
 import {CheckCircleIcon} from "@heroicons/react/solid";
 import {CashIcon} from "@heroicons/react/outline";
+import {getProfilePicture} from "../utils/profilePic";
 
 
 export function MentorProfileHeader({mentor}) {
@@ -18,14 +19,14 @@ export function MentorProfileHeader({mentor}) {
             <div className="flex items-center">
               <img
                 className="hidden h-16 w-16 rounded-full sm:block"
-                src={mentor.profile_picture ? mentor.profile_picture : `https://avatars.dicebear.com/api/initials/${mentor.user.name}.svg`}
+                src={getProfilePicture(mentor.profile_picture, mentor.user.name)}
                 alt={mentor.user.username}
               />
               <div>
                 <div className="flex items-center">
                   <img
                     className="h-16 w-16 rounded-full sm:hidden"
-                    src={mentor.profile_picture ? mentor.profile_picture : `https://avatars.dicebear.com/api/initials/${mentor.user.name}.svg`}
+                    src={getProfilePicture(mentor.profile_picture, mentor.user.name)}
                     alt={mentor.user.username}
                   />
                   <h1 className="ml-3 text-2xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">

@@ -33,10 +33,16 @@ class User(AbstractUser):
 
 def post_save_user_receiver(sender, instance, created, **kwargs):
     if created:
+        instance.name = f"{instance.first_name} {instance.last_name}"
         account = stripe.Account.create(
             type='express',
         )
         instance.stripe_account_id = account["id"]
+        customer = stripe.Customer.create(
+            email=instance.email,
+            name=instance.name
+        )
+        instance.stripe_customer_id = customer["id"]
         instance.save()
 
 

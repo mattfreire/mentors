@@ -4,6 +4,7 @@ import {CashIcon, CheckCircleIcon, TableIcon} from "@heroicons/react/solid";
 import {AuthContext} from "../contexts/AuthContext";
 import useSWR from "swr";
 import {API_URL} from "../config";
+import {getProfilePicture} from "../utils/profilePic";
 
 export function MentorProfileNavbar() {
   const {user, accessToken} = useContext(AuthContext)
@@ -24,14 +25,14 @@ export function MentorProfileNavbar() {
         <div className="flex items-center">
           <img
             className="hidden h-16 w-16 rounded-full sm:block"
-            src={user.profile_picture ? user.profile_picture : `https://avatars.dicebear.com/api/initials/${user.name}.svg`}
+            src={getProfilePicture(user.profile_picture, user.name)}
             alt={user.username}
           />
           <div>
             <div className="flex items-center">
               <img
                 className="h-16 w-16 rounded-full sm:hidden"
-                src={user.profile_picture ? user.profile_picture : `https://avatars.dicebear.com/api/initials/${user.name}.svg`}
+                src={getProfilePicture(user.profile_picture, user.name)}
                 alt={user.username}
               />
               <h1 className="ml-3 text-2xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">

@@ -7,6 +7,7 @@ import {AuthContext} from "../../contexts/AuthContext";
 import {API_URL} from "../../config";
 import {DashboardLayout} from "../../components/DashboardLayout";
 import {UserProfileNavbar} from "../../components/UserProfileNavbar";
+import {getProfilePicture} from "../../utils/profilePic";
 
 
 function UserProfileForm() {
@@ -275,9 +276,9 @@ function MentorProfilePictureForm({ mentor }) {
               <div>
                 <img className="w-24 h-24 px-3 py-3 mr-3 rounded-full" src={imgPreview} alt={""} />
               </div>
-            ) : mentor.profile_picture && (
+            ) : (
               <div>
-                <img className="w-24 h-24 px-3 py-3 mr-3 rounded-full" src={mentor.profile_picture} alt={""} />
+                <img className="w-24 h-24 px-3 py-3 mr-3 rounded-full" src={getProfilePicture(mentor.profile_picture, mentor.user.name)} alt={""} />
               </div>
             )}
             <div>

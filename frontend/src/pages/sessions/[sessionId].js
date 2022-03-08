@@ -9,6 +9,7 @@ import {MentorProfileHeader} from "../../components/MentorProfileHeader";
 import {ClientChatbox} from "../../containers/ClientChatbox";
 import {API_URL} from "../../config";
 import {AuthContext} from "../../contexts/AuthContext";
+import {classNames} from "../../utils/classNames";
 
 let socket
 
@@ -26,10 +27,6 @@ const callProviders = [
     background: 'bg-blue-500',
   },
 ]
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
 
 function CallProviders() {
   return (

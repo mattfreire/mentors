@@ -2,6 +2,7 @@ import datetime
 from math import ceil
 
 from django.conf import settings
+from django.db.models import Avg
 from django.utils.timezone import make_aware
 from rest_framework import serializers
 
@@ -32,6 +33,8 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class MentorSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
+    session_count = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Mentor
@@ -42,15 +45,25 @@ class MentorSerializer(serializers.ModelSerializer):
             "title",
             "bio",
             "profile_picture",
-            "rate"
+            "rate",
+            "session_count",
+            "average_rating"
         )
         read_only_fields = (
             "id",
-            "user"
+            "user",
+            "session_count",
+            "average_rating"
         )
 
     def get_user(self, obj):
         return UserSerializer(obj.user, context=self.context).data
+
+    def get_session_count(self, obj):
+        return MentorSession.objects.filter(mentor=obj, completed=True).count()
+
+    def get_average_rating(self, obj):
+        return Review.objects.filter(session__mentor=obj).aggregate(rating_avg=Avg("rating"))["rating_avg"]
 
 
 class MentorSessionEventSerializer(serializers.ModelSerializer):

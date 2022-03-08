@@ -19,6 +19,7 @@ from rest_framework.viewsets import GenericViewSet
 from stripe.error import SignatureVerificationError
 
 from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent, Review
+from .paginaters import SmallResultsSetPagination
 from .permissions import IsSessionClientOrReadOnly
 from .serializers import MentorSerializer, MentorSessionSerializer, ReviewSerializer
 
@@ -28,7 +29,8 @@ User = get_user_model()
 
 class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = MentorSerializer
-    queryset = Mentor.objects.filter(is_active=True, approved=True)
+    pagination_class = SmallResultsSetPagination
+    queryset = Mentor.objects.filter(is_active=True, approved=True).order_by("?")
     lookup_field = "user__username"
 
     def get_serializer_context(self):
@@ -188,7 +190,7 @@ class CreateStripeCheckoutView(APIView):
             success_url=domain + '/sessions/' + str(mentor_session.id),
             cancel_url=domain + '/sessions/' + str(mentor_session.id),
             payment_intent_data={
-                'application_fee_amount': 123,
+                'application_fee_amount': 0,
                 'transfer_data': {
                     'destination': mentor_session.mentor.user.stripe_account_id,
                 },
