@@ -29,7 +29,12 @@ export const AuthContextProvider = ({children, pageProps}) => {
     } catch (e) {
       setUser(null)
       setLoading(false)
-      if (router.route !== "/login" && router.route !== "/register" && router.route !== "/accounts/confirm-email/[key]") {
+      if (router.route !== "/login" &&
+        router.route !== "/register" &&
+        router.route !== "/accounts/confirm-email/[key]" &&
+        router.route !== "/accounts/reset-password" &&
+        router.route !== "/accounts/reset-password/confirm/[token]"
+      ) {
         await router.push('/login')
       }
     } finally {

@@ -1,39 +1,49 @@
 import {useState, useContext} from 'react';
-import Link from 'next/link'
 import {useRouter} from 'next/router';
 import {useFormik} from "formik";
 import * as Yup from 'yup';
-import {AuthContext} from "../contexts/AuthContext";
-import {Message} from "../components/Message";
-import {FormField} from "../components/FormField";
+import {AuthContext} from "../../contexts/AuthContext";
+import {Message} from "../../components/Message";
+import {FormField} from "../../components/FormField";
+import {API_URL} from "../../config";
 
-function LoginPage() {
+
+export default function ResetPasswordPage() {
   const router = useRouter();
-  const {user, login} = useContext(AuthContext)
+  const {user} = useContext(AuthContext)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const formik = useFormik({
     initialValues: {
       email: '',
-      password: '',
     },
     validationSchema: Yup.object().shape({
       email: Yup.string().email('Invalid email').required('Required'),
-      password: Yup.string().min(8, 'Too Short!').required('Required'),
     }),
     onSubmit: async values => {
       setLoading(true)
-      const {email, password} = values;
-      const res = await login(email, password);
-      if (res.error || res.data) {
-        if (res.data && res.data.detail) {
-          setError(res.data.detail)
+      const {email} = values;
+      try {
+        const body = JSON.stringify({ email })
+        const apiRes = await fetch(`${API_URL}/api/auth/reset-password/`, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body
+        });
+        const res = await apiRes.json()
+        if (res.status === 200) {
+          // TODO toast message
+          formik.resetForm()
         }
-      } else {
-        await router.push('/login')
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     },
   });
 
@@ -50,15 +60,7 @@ function LoginPage() {
               src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
               alt="Workflow"
             />
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Or{' '}
-              <Link href={"/register"}>
-                <a className="font-medium text-indigo-600 hover:text-indigo-500">
-                  create an account
-                </a>
-              </Link>
-            </p>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Reset your password</h2>
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={formik.handleSubmit}>
@@ -78,26 +80,6 @@ function LoginPage() {
                 fieldName={"email"}
                 placeholder="Email"
               />
-              <FormField
-                label={"Password"}
-                errors={formik.errors.password}
-                value={formik.values.password}
-                handleChange={formik.handleChange}
-                touched={formik.touched.password}
-                fieldType={"password"}
-                fieldName={"password"}
-                placeholder="password"
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="text-sm">
-                <Link href={"/accounts/reset-password"}>
-                  <a className="font-medium text-indigo-600 hover:text-indigo-500">
-                    Forgot your password?
-                  </a>
-                </Link>
-              </div>
             </div>
 
             <div>
@@ -117,7 +99,7 @@ function LoginPage() {
                     />
                   </svg>
                 )}
-                Sign in
+                Submit
               </button>
             </div>
           </form>
@@ -126,6 +108,3 @@ function LoginPage() {
     </>
   );
 }
-
-
-export default LoginPage;

@@ -80,6 +80,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "drf_spectacular",
     'rest_framework_simplejwt.token_blacklist',
+    'django_rest_passwordreset',
 ]
 
 LOCAL_APPS = [
