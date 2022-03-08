@@ -69,10 +69,12 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "crispy_forms",
     "crispy_bootstrap5",
+    "dj_rest_auth",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "django_celery_beat",
+    "dj_rest_auth.registration",
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
@@ -298,6 +300,9 @@ ACCOUNT_FORMS = {"signup": "mentors.users.forms.UserSignupForm"}
 SOCIALACCOUNT_ADAPTER = "mentors.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
 SOCIALACCOUNT_FORMS = {"signup": "mentors.users.forms.UserSocialSignupForm"}
+
+# dj-rest-auth
+REGISTER_SERIALIZER = "mentors.users.api.serializers.CustomRegisterSerializer"
 
 # django-rest-framework
 # -------------------------------------------------------------------------------

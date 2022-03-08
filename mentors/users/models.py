@@ -45,5 +45,9 @@ def post_save_user_receiver(sender, instance, created, **kwargs):
         instance.stripe_customer_id = customer["id"]
         instance.save()
 
+        # Avoid circular import
+        from mentors.mentors.models import Mentor
+        Mentor.objects.create(user=instance)
+
 
 post_save.connect(post_save_user_receiver, sender=User)

@@ -4,8 +4,8 @@ export default async (req, res) => {
   if (req.method === "POST") {
     const { username,
       email,
-      password,
-      re_password,
+      password1,
+      password2,
       first_name,
       last_name
     } = req.body;
@@ -13,8 +13,8 @@ export default async (req, res) => {
     const body = JSON.stringify({
       username,
       email,
-      password,
-      re_password,
+      password1,
+      password2,
       first_name,
       last_name
     });

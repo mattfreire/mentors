@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
+from dj_rest_auth.registration.serializers import RegisterSerializer
 from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
-from rest_framework.validators import UniqueValidator
 
 from mentors.mentors.models import Mentor
 
@@ -33,34 +32,23 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.mentor.approved
 
 
-class RegisterSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        validators=[UniqueValidator(queryset=User.objects.all())]
+class CustomRegisterSerializer(RegisterSerializer):
+    first_name = serializers.CharField(
+        max_length=50,
+        min_length=2,
+        required=True
     )
-    password = serializers.CharField(write_only=True, validators=[validate_password])
-    re_password = serializers.CharField(write_only=True)
+    last_name = serializers.CharField(
+        max_length=50,
+        min_length=2,
+        required=True
+    )
 
-    class Meta:
-        model = User
-        fields = ('username', 'password', 'email', 're_password', 'first_name', 'last_name')
-
-    def validate(self, attrs):
-        if attrs['password'] != attrs['re_password']:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
-
-        return attrs
-
-    def create(self, validated_data):
-        user = User.objects.create(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
-        )
-
-        user.set_password(validated_data['password'])
-        user.save()
-
-        Mentor.objects.create(user=user)
-
-        return user
+    def get_cleaned_data(self):
+        return {
+            'username': self.validated_data.get('username', ''),
+            'password1': self.validated_data.get('password1', ''),
+            'email': self.validated_data.get('email', ''),
+            'first_name': self.validated_data.get('first_name', ''),
+            'last_name': self.validated_data.get('last_name', ''),
+        }

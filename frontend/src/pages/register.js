@@ -16,25 +16,25 @@ function RegisterPage() {
 
   const formik = useFormik({
     initialValues: {
-      first_name: '',
-      last_name: '',
-      username: '',
-      email: '',
-      password: '',
-      re_password: '',
+      first_name: 'John',
+      last_name: 'Doe',
+      username: 'johndoe2',
+      email: 'johndoe2@gmail.com',
+      password1: 'donkey123',
+      password2: 'donkey123',
     },
     validationSchema: Yup.object().shape({
       first_name: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
       last_name: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
       username: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Required'),
       email: Yup.string().email('Invalid email').required('Required'),
-      password: Yup.string().min(8, 'Too Short!').required('Required'),
-      re_password: Yup.string().min(8, 'Too Short!').required('Required'),
+      password1: Yup.string().min(8, 'Too Short!').required('Required'),
+      password2: Yup.string().min(8, 'Too Short!').required('Required'),
     }),
     onSubmit: async values => {
       setLoading(true)
-      const {username, email, password, re_password, first_name, last_name} = values;
-      const res = await register(username, email, password, re_password, first_name, last_name)
+      const {username, email, password1, password2, first_name, last_name} = values;
+      const res = await register(username, email, password1, password2, first_name, last_name)
       if (res.error || res.data) {
         if (res.error) {
           if (res.error.data && res.error.data.detail) {
@@ -130,23 +130,23 @@ function RegisterPage() {
               />
               <FormField
                 label={"Password"}
-                errors={formik.errors.password}
-                value={formik.values.password}
+                errors={formik.errors.password1}
+                value={formik.values.password1}
                 handleChange={formik.handleChange}
-                touched={formik.touched.password}
+                touched={formik.touched.password1}
                 fieldType={"password"}
-                fieldName={"password"}
+                fieldName={"password1"}
                 placeholder="password"
               />
               <FormField
                 label={"Confirm Password"}
-                errors={formik.errors.re_password}
-                value={formik.values.re_password}
+                errors={formik.errors.password2}
+                value={formik.values.password2}
                 handleChange={formik.handleChange}
-                touched={formik.touched.re_password}
+                touched={formik.touched.password2}
                 fieldType={"password"}
-                fieldName={"re_password"}
-                placeholder="password"
+                fieldName={"password2"}
+                placeholder="confirm password"
               />
             </div>
 

@@ -19,14 +19,14 @@ class AuthService {
     return await axios.post('/api/account/logout')
   }
 
-  async register(username, email, password, re_password, first_name, last_name) {
+  async register(username, email, password1, password2, first_name, last_name) {
     return await fetch('/api/account/register',
       {
         method: "post",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({username, email, password, re_password, first_name, last_name})
+        body: JSON.stringify({username, email, password1, password2, first_name, last_name})
       }
     );
   }

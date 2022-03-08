@@ -29,7 +29,7 @@ export const AuthContextProvider = ({children, pageProps}) => {
     } catch (e) {
       setUser(null)
       setLoading(false)
-      if (router.route !== "/login" && router.route !== "/register") {
+      if (router.route !== "/login" && router.route !== "/register" && router.route !== "/accounts/confirm-email/[key]") {
         await router.push('/login')
       }
     } finally {
@@ -57,9 +57,9 @@ export const AuthContextProvider = ({children, pageProps}) => {
     }
   }
 
-  async function register(username, email, password, re_password, first_name, last_name) {
+  async function register(username, email, password1, password2, first_name, last_name) {
     try {
-      const res = await AuthService.register(username, email, password, re_password, first_name, last_name);
+      const res = await AuthService.register(username, email, password1, password2, first_name, last_name);
       return await res.json()
     } catch (e) {
       console.log(e)
