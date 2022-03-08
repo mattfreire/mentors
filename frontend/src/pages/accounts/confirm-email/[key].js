@@ -3,6 +3,7 @@ import {Message} from "../../../components/Message";
 import {useContext, useState} from "react";
 import {API_URL} from "../../../config";
 import {AuthContext} from "../../../contexts/AuthContext";
+import {toast} from "react-hot-toast";
 
 
 export default function ConfirmEmailPage() {
@@ -31,8 +32,8 @@ export default function ConfirmEmailPage() {
           setError(res.data.detail)
         }
       }
-      if (res.status === 200) {
-        // TODO toast message
+      if (apiRes.status === 200) {
+        toast.success('Your email has been confirmed. You can now sign in.', { duration: 5000 })
         await router.push('/login')
       }
     } catch (err) {

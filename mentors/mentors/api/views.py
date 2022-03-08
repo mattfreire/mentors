@@ -4,6 +4,7 @@ from math import ceil
 import stripe
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils.timezone import make_aware
@@ -229,17 +230,21 @@ def stripe_webhook(request):
             payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
         )
     except ValueError as e:
-        # mail_service.report_mail(
-        #     subject="Unsuccessful Stripe webhook.",
-        #     message=f"An Invalid payload occurred: {e}"
-        # )
+        send_mail(
+            subject="Unsuccessful Stripe webhook.",
+            message=f"An Invalid payload occurred: {e}",
+            from_email="you@local.test",
+            recipient_list=["admin@domain.com"]
+        )
         return HttpResponse(status=400)
 
     except SignatureVerificationError as e:
-        # mail_service.report_mail(
-        #     subject="Unsuccessful Stripe webhook.",
-        #     message=f"An Invalid signature occurred: {e}",
-        # )
+        send_mail(
+            subject="Unsuccessful Stripe webhook.",
+            message=f"An Invalid signature occurred: {e}",
+            from_email="you@local.test",
+            recipient_list=["admin@domain.com"]
+        )
         return HttpResponse(status=400)
 
     event_type = event['type']
@@ -248,13 +253,24 @@ def stripe_webhook(request):
         session_id = event["data"]["object"]["metadata"]["session_id"]
         customer_id = event["data"]["object"]["customer"]
 
-        user = User.objects.get(stripe_customer_id=customer_id)
+        client = User.objects.get(stripe_customer_id=customer_id)
         session = MentorSession.objects.get(id=session_id)
         session.paid = True
         session.save()
 
-        # TODO send mail to client thanking for payment
-        # TODO send mail to mentor for payment confirmation
+        send_mail(
+            subject="Your payment was successful",
+            message=f"Your session with {session.mentor.user.name} has now been paid for.",
+            from_email="you@local.test",
+            recipient_list=[client.email]
+        )
+
+        send_mail(
+            subject="You have received a payment!",
+            message=f"Your session with {session.mentor.user.name} has now been paid for.",
+            from_email="you@local.test",
+            recipient_list=[session.mentor.user.email]
+        )
 
     return HttpResponse(status=200)
 

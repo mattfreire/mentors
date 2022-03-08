@@ -2,6 +2,7 @@ import Head from 'next/head';
 import "../../styles/globals.css"
 import Navbar from '../components/Navbar'
 import {AuthContextProvider} from "../contexts/AuthContext";
+import {Toaster} from "react-hot-toast";
 
 const App = ({Component, pageProps}) => {
   return (
@@ -12,6 +13,7 @@ const App = ({Component, pageProps}) => {
           <meta name='viewport' content='width=device-width, inital-scale=1'/>
         </Head>
         <Navbar/>
+        <Toaster position="top-center" />
         <Component {...pageProps} />
       </div>
     </AuthContextProvider>

@@ -8,6 +8,7 @@ import {API_URL} from "../../config";
 import {DashboardLayout} from "../../components/DashboardLayout";
 import {UserProfileNavbar} from "../../components/UserProfileNavbar";
 import {getProfilePicture} from "../../utils/profilePic";
+import {toast} from "react-hot-toast";
 
 
 function UserProfileForm() {
@@ -33,8 +34,8 @@ function UserProfileForm() {
           body
         });
         if (apiRes.status === 200) {
-          const data = await apiRes.json();
-          // TODO toast message
+          await apiRes.json();
+          toast.success('Your user profile has been updated.', { duration: 5000 })
         }
       } catch (err) {
         console.error(err)
@@ -122,7 +123,8 @@ function MentorProfileForm({ mentor }) {
           body
         });
         if (apiRes.status === 200) {
-          const data = await apiRes.json();
+          await apiRes.json();
+          toast.success('Your mentor profile has been updated.', { duration: 5000 })
         }
       } catch (err) {
         console.error(err)
@@ -231,6 +233,7 @@ function MentorProfilePictureForm({ mentor }) {
         await mutate('/api/account/user', { ...user, profile_picture: data.profile_picture })
         handleChange(null)
         setUser({ ...user, profile_picture: data.profile_picture })
+        toast.success('Your profile picture has been updated.', { duration: 5000 })
       }
     } catch (err) {
       console.error(err)
@@ -254,6 +257,7 @@ function MentorProfilePictureForm({ mentor }) {
         await mutate('/api/account/user', { ...user, profile_picture: null })
         handleChange(null)
         setUser({ ...user, profile_picture: null })
+        toast.success('Your profile picture has been removed.', { duration: 5000 })
       }
     } catch (err) {
       console.error(err)
@@ -338,6 +342,7 @@ function MentorActiveForm({ mentor }) {
       });
       if (apiRes.status === 200) {
         await mutate(`${API_URL}/api/mentors/me/`, { ...mentor, is_active: !mentor.is_active })
+        toast.success('Your profile has been updated.', { duration: 5000 })
       }
     } catch (err) {
       console.error(err)

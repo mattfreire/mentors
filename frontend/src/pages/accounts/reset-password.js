@@ -2,6 +2,7 @@ import {useState, useContext} from 'react';
 import {useRouter} from 'next/router';
 import {useFormik} from "formik";
 import * as Yup from 'yup';
+import {toast} from "react-hot-toast";
 import {AuthContext} from "../../contexts/AuthContext";
 import {Message} from "../../components/Message";
 import {FormField} from "../../components/FormField";
@@ -21,7 +22,7 @@ export default function ResetPasswordPage() {
     validationSchema: Yup.object().shape({
       email: Yup.string().email('Invalid email').required('Required'),
     }),
-    onSubmit: async values => {
+    onSubmit: async (values, { resetForm }) => {
       setLoading(true)
       const {email} = values;
       try {
@@ -34,10 +35,9 @@ export default function ResetPasswordPage() {
           },
           body
         });
-        const res = await apiRes.json()
-        if (res.status === 200) {
-          // TODO toast message
-          formik.resetForm()
+        if (apiRes.status === 200) {
+          toast.success('We have sent you an email to reset your password.', { duration: 5000 })
+          resetForm()
         }
       } catch (err) {
         console.error(err)

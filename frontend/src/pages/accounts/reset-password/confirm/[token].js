@@ -6,6 +6,7 @@ import {AuthContext} from "../../../../contexts/AuthContext";
 import {Message} from "../../../../components/Message";
 import {FormField} from "../../../../components/FormField";
 import {API_URL} from "../../../../config";
+import {toast} from "react-hot-toast";
 
 
 export default function ConfirmResetPasswordPage() {
@@ -24,7 +25,7 @@ export default function ConfirmResetPasswordPage() {
       password: Yup.string().min(8, 'Too Short!').required('Required'),
       password2: Yup.string().min(8, 'Too Short!').required('Required'),
     }),
-    onSubmit: async values => {
+    onSubmit: async (values, {resetForm}) => {
       setLoading(true)
       try {
         const body = JSON.stringify({...values, token})
@@ -36,11 +37,10 @@ export default function ConfirmResetPasswordPage() {
           },
           body
         });
-        const res = await apiRes.json()
-        if (res.status === 200) {
-          // TODO toast message
-          formik.resetForm()
-          router.push('/login')
+        if (apiRes.status === 200) {
+          toast.success('Your password has been reset. You can now sign in.', { duration: 5000 })
+          resetForm()
+          await router.push('/login')
         }
       } catch (err) {
         console.error(err)

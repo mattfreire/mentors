@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import {AuthContext} from "../contexts/AuthContext";
 import {Message} from "../components/Message";
 import {FormField} from "../components/FormField";
+import {toast} from "react-hot-toast";
 
 
 function RegisterPage() {
@@ -31,7 +32,7 @@ function RegisterPage() {
       password1: Yup.string().min(8, 'Too Short!').required('Required'),
       password2: Yup.string().min(8, 'Too Short!').required('Required'),
     }),
-    onSubmit: async values => {
+    onSubmit: async (values, {resetForm}) => {
       setLoading(true)
       const {username, email, password1, password2, first_name, last_name} = values;
       const res = await register(username, email, password1, password2, first_name, last_name)
@@ -49,7 +50,8 @@ function RegisterPage() {
           }
         }
       } else {
-        await router.push('/login')
+        resetForm()
+        toast.success('We have sent you a confirmation email.', { duration: 5000 })
       }
       setLoading(false)
     },
