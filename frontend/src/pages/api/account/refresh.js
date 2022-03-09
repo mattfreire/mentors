@@ -35,19 +35,20 @@ export default async (req, res) => {
             secure: process.env.NODE_ENV !== "development",
             maxAge: 60 * 30,
             sameSite: "strict",
-            path: "/api/",
+            path: "/",
           }),
           cookie.serialize("refresh", data.refresh, {
             httpOnly: true,
             secure: process.env.NODE_ENV !== "development",
             maxAge: 60 * 60 * 24,
             sameSite: "strict",
-            path: "/api/",
+            path: "/",
           }),
         ]);
 
         return res.status(200).json({
           success: "Refresh request successful",
+          accessToken: data.access
         });
       } else {
         return res.status(apiRes.status).json({

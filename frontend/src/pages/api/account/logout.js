@@ -9,7 +9,7 @@ export default async (req, res) => {
                     secure: process.env.NODE_ENV !== 'development',
                     expires: new Date(0),
                     sameSite: 'strict',
-                    path: '/api/'
+                    path: '/'
                 }
             ),
             cookie.serialize(
@@ -18,7 +18,7 @@ export default async (req, res) => {
                     secure: process.env.NODE_ENV !== 'development',
                     expires: new Date(0),
                     sameSite: 'strict',
-                    path: '/api/'
+                    path: '/'
                 }
             )
         ]);

@@ -1,57 +1,54 @@
 from django.contrib.auth import get_user_model
+from dj_rest_auth.registration.serializers import RegisterSerializer
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
-from django.contrib.auth.password_validation import validate_password
 
+from mentors.mentors.models import Mentor
 
 User = get_user_model()
 
 
-class UserSerializer(serializers.ModelSerializer):
+class MentorProfilePictureSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["username", "name", "url"]
-
-        extra_kwargs = {
-            "url": {"view_name": "api:user-detail", "lookup_field": "username"}
-        }
-
-
-class RegisterSerializer(serializers.ModelSerializer):
-    # email = serializers.EmailField(
-    #     validators=[UniqueValidator(queryset=User.objects.all())]
-    # )
-
-    password = serializers.CharField(write_only=True, validators=[validate_password])
-    re_password = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'password', 're_password')
-
-    def validate(self, attrs):
-        if attrs['password'] != attrs['re_password']:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
-
-        return attrs
-
-    def create(self, validated_data):
-        print(validated_data)
-        user = User.objects.create(
-            username=validated_data['username'],
-            # email=validated_data['email'],
-            # first_name=validated_data['first_name'],
-            # last_name=validated_data['last_name']
+        model = Mentor
+        fields = (
+            "profile_picture",
         )
-
-        user.set_password(validated_data['password'])
-        user.save()
-
-        return user
+        read_only_fields = ["profile_picture"]
 
 
+class UserSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.SerializerMethodField()
+    is_mentor = serializers.SerializerMethodField()
 
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ('first_name', 'last_name', 'username', )
+    class Meta:
+        model = User
+        fields = ["id", "username", "first_name", "last_name", "name", "profile_picture", "is_mentor"]
+        read_only_fields = ["id", "username", "profile_picture", "is_mentor"]
+
+    def get_profile_picture(self, obj):
+        return MentorProfilePictureSerializer(obj.mentor, context=self.context).data["profile_picture"]
+
+    def get_is_mentor(self, obj):
+        return obj.mentor.approved
+
+
+class CustomRegisterSerializer(RegisterSerializer):
+    first_name = serializers.CharField(
+        max_length=50,
+        min_length=2,
+        required=True
+    )
+    last_name = serializers.CharField(
+        max_length=50,
+        min_length=2,
+        required=True
+    )
+
+    def get_cleaned_data(self):
+        return {
+            'username': self.validated_data.get('username', ''),
+            'password1': self.validated_data.get('password1', ''),
+            'email': self.validated_data.get('email', ''),
+            'first_name': self.validated_data.get('first_name', ''),
+            'last_name': self.validated_data.get('last_name', ''),
+        }

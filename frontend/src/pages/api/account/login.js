@@ -24,28 +24,30 @@ export default async (req, res) => {
 
       if (apiRes.status === 200) {
         res.setHeader("Set-Cookie", [
-          cookie.serialize("access", data.access, {
+           cookie.serialize("access", data.access, {
             httpOnly: true,
             secure: process.env.NODE_ENV !== "development",
             maxAge: 60 * 30,
             sameSite: "strict",
-            path: "/api/",
+            path: "/",
           }),
           cookie.serialize("refresh", data.refresh, {
             httpOnly: true,
             secure: process.env.NODE_ENV !== "development",
             maxAge: 60 * 60 * 24,
             sameSite: "strict",
-            path: "/api/",
+            path: "/",
           }),
         ]);
 
         return res.status(200).json({
           success: "Logged in successfully",
+          accessToken: data.access
         });
       } else {
         return res.status(apiRes.status).json({
           error: "Authentication failed",
+          data
         });
       }
     } catch (err) {
