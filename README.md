@@ -1,6 +1,41 @@
-# mentors
+# Mentors Marketplace
 
-Find mentors
+This project is a marketplace to find developers and freelancers. A mentor can invite you to join a session. Once a session is complete,
+clients can pay for the session using Stripe. Payouts to mentors are done using Stripe connect.
+
+You can learn how to build this project from scratch on [JustDjango](http://learn.justdjango.com). 
+
+Here is an overview of the features:
+- See a list of mentors
+- View a mentor's profile, including their ratings and reviews
+- Realtime chat with mentors - provided by [TalkJS](https://talkjs.com/)
+- Mentors can start a paid session with you
+- Pay for a session using [Stripe](https://stripe.com/)
+- Mentors receive payouts with [Stripe Connect](https://stripe.com/connect)
+- Review a mentor after a session 
+- View your session history as either a mentor or client
+
+## Technologies Used
+
+1. Django and Django Rest Framework
+2. NextJS
+
+## Setting up the project
+
+This project was bootstrapped with Cookiecutter Django, hence the Django project can be setup with Docker or to run locally 
+inside a virtual environment. The `frontend` folder contains the NextJS project.
+
+Run through these steps to setup the project for the first time:
+
+1. Set your environment variables for the Django project inside `.envs/local/.django` and for the NextJS project 
+inside `frontend/.env.local`. You can use the `frontend/.env.template` file as a starting point.
+2. For the Django project build the docker containers with `docker-compose -f local.yml build`
+3. Install dependencies for the NextJS project with `cd frontend && npm i`
+4. Run the Django docker project with `docker-compose -f local.yml up`
+5. Run the NextJS project with `npm run dev`
+6. Create superusers and test users
+7. Django mentors are by default set `is_approved=False` which means they will not show up in search results until they 
+are approved. Right now the only way approve is to manually via the Django admin.
 
 [![Built with Cookiecutter Django](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg?logo=cookiecutter)](https://github.com/cookiecutter/cookiecutter-django/)
 [![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
@@ -72,31 +107,3 @@ The following details how to deploy this application.
 ### Docker
 
 See detailed [cookiecutter-django Docker documentation](http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html).
-
-## Planning
-
-Marketplace to find mentors
-
-- See list of mentors (List view)
-- Mentors profile (Detail view)
-- Session (video call) with mentor
-- Mentor Django model
-  - rate ($/15 mins)
-  - example session is 35 minutes -> $45
-- Session Django model
-    - mentor
-    - student
-    - send request to initiate the session
-- SessionSegment Django model
-  - pause session
-  - end session
-- Stripe connect to handle payouts to mentors
-
-
-0 -> 10 mins (SessionSegment)
-10 mins -> 1hr (SessionSegment)
-1 hr
-
-
-
-
