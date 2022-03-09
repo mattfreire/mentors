@@ -1,6 +1,7 @@
 import React from "react";
 import Talk from "talkjs";
 import {getProfilePicture} from "../utils/profilePic";
+import {TALKJS_PROJECT_ID} from "../config";
 
 export class ClientChatbox extends React.Component {
     constructor(props) {
@@ -32,7 +33,7 @@ export class ClientChatbox extends React.Component {
         photoUrl: getProfilePicture(user.profile_picture, user.name)
       })
       return new Talk.Session({
-        appId: "tIZMNNO1",
+        appId: TALKJS_PROJECT_ID,
         me
       });
     }

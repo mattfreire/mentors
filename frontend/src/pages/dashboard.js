@@ -5,7 +5,7 @@ import useSWR, {SWRConfig} from "swr";
 import {ScaleIcon} from '@heroicons/react/outline'
 import { ChatIcon } from '@heroicons/react/solid'
 import {AuthContext} from "../contexts/AuthContext";
-import {API_URL} from "../config";
+import {API_URL, TALKJS_PROJECT_ID} from "../config";
 import {DashboardLayout} from "../components/DashboardLayout";
 import {getProfilePicture} from "../utils/profilePic";
 import {classNames} from "../utils/classNames";
@@ -44,7 +44,7 @@ class Inbox extends React.Component {
       role: "client"
     })
     return new Talk.Session({
-      appId: "tIZMNNO1",
+      appId: TALKJS_PROJECT_ID,
       me
     });
   }
