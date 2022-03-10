@@ -21,7 +21,7 @@ from stripe.error import SignatureVerificationError
 
 from mentors.mentors.models import Mentor, MentorSession, MentorSessionEvent, Review
 from .paginaters import SmallResultsSetPagination
-from .permissions import IsSessionClientOrReadOnly
+from .permissions import IsSessionClientOrReadOnly, OnlyClientCanReview
 from .serializers import MentorSerializer, MentorSessionSerializer, ReviewSerializer
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -31,8 +31,16 @@ User = get_user_model()
 class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = MentorSerializer
     pagination_class = SmallResultsSetPagination
-    queryset = Mentor.objects.filter(is_active=True, approved=True).order_by("?")
+    queryset = Mentor.objects.filter(is_active=True, approved=True)
     lookup_field = "user__username"
+
+    def get_queryset(self):
+        page = self.request.query_params.get('page')
+        queryset = self.queryset
+        if not page:
+            # Randomize order of list views
+            queryset = self.queryset.order_by("?")
+        return queryset
 
     def get_serializer_context(self):
         return {"request": self.request}
@@ -49,11 +57,21 @@ class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, Generi
 
 class ReviewViewSet(RetrieveModelMixin, ListModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated, IsSessionClientOrReadOnly]
+    permission_classes = [IsAuthenticated, IsSessionClientOrReadOnly, OnlyClientCanReview]
     queryset = Review.objects.all()
 
     def get_serializer_context(self):
         return {"request": self.request}
+
+    def perform_create(self, serializer):
+        review = serializer.save()
+        send_mail(
+            subject="You received a review!",
+            message=f"Your review from {review.session.client.user.name} was {review.rating}/5 stars and they had this to "
+                    f"say about you: {review.description}",
+            from_email="you@local.test",
+            recipient_list=[review.session.mentor.user.email]
+        )
 
     def get_queryset(self):
         queryset = Review.objects.all()
@@ -100,6 +118,11 @@ class MentorSessionViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin,
 
         events = mentor_session.events.all().order_by("-start_time")
         if not events.exists():
+            # Starting a session
+            # Only clients should be able to start a session - otherwise mentors abuse
+            if request.user != mentor_session.client:
+                return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": "The client must start the session"})
+
             MentorSessionEvent.objects.create(mentor_session=mentor_session)
             serializer = self.serializer_class(mentor_session, context={"request": request})
             return Response(status=status.HTTP_200_OK, data=serializer.data)

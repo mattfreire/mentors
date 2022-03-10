@@ -13,7 +13,7 @@ function Review({review}) {
   const stars = []
   for (let i = 1; i < 6; i++) {
     stars.push(
-      <li key={i} className="cursor-pointer">
+      <li key={i}>
         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="star"
              className={classNames(
                review.rating >= i ? "text-yellow-500" : "text-gray-300",
