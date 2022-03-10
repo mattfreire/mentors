@@ -302,9 +302,6 @@ SOCIALACCOUNT_ADAPTER = "mentors.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
 SOCIALACCOUNT_FORMS = {"signup": "mentors.users.forms.UserSocialSignupForm"}
 
-# dj-rest-auth
-REGISTER_SERIALIZER = "mentors.users.api.serializers.CustomRegisterSerializer"
-
 # django-rest-framework
 # -------------------------------------------------------------------------------
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
