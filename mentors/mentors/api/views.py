@@ -58,7 +58,7 @@ class MentorViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, Generi
 class ReviewViewSet(RetrieveModelMixin, ListModelMixin, CreateModelMixin, GenericViewSet):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated, IsSessionClientOrReadOnly, OnlyClientCanReview]
-    queryset = Review.objects.all()
+    queryset = Review.objects.all().order_by("-timestamp")
 
     def get_serializer_context(self):
         return {"request": self.request}
@@ -74,7 +74,7 @@ class ReviewViewSet(RetrieveModelMixin, ListModelMixin, CreateModelMixin, Generi
         )
 
     def get_queryset(self):
-        queryset = Review.objects.all()
+        queryset = self.queryset
         mentor = self.request.query_params.get('mentor')
         client = self.request.query_params.get('client')
         if mentor is not None:

@@ -19,6 +19,7 @@ class MentorProfilePictureSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
     is_mentor = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -30,6 +31,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_mentor(self, obj):
         return obj.mentor.approved
+
+    def get_name(self, obj):
+        return obj.get_full_name()
 
 
 class CustomRegisterSerializer(RegisterSerializer):
