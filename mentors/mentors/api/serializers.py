@@ -101,6 +101,7 @@ class MentorSessionSerializer(serializers.ModelSerializer):
     session_url = serializers.SerializerMethodField()
     other_user = serializers.SerializerMethodField()
     current_session_length = serializers.SerializerMethodField()
+    reviewed = serializers.SerializerMethodField()
 
     class Meta:
         model = MentorSession
@@ -119,7 +120,8 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "session_url",
             "other_user",
             "current_session_length",
-            "paid"
+            "paid",
+            "reviewed"
         )
         read_only_fields = (
             "id",
@@ -132,7 +134,8 @@ class MentorSessionSerializer(serializers.ModelSerializer):
             "session_url",
             "other_user",
             "current_session_length",
-            "paid"
+            "paid",
+            "reviewed"
         )
 
     def get_current_session_length(self, obj):
@@ -190,3 +193,10 @@ class MentorSessionSerializer(serializers.ModelSerializer):
         if settings.DEBUG:
             domain = "http://localhost:3000"
         return domain + "/sessions/" + str(obj.id)
+
+    def get_reviewed(self, obj):
+        try:
+            Review.objects.get(session=obj)
+            return True
+        except Review.DoesNotExist:
+            return False

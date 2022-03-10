@@ -511,14 +511,31 @@ function Session() {
     return "Loading..."
   }
 
-  if (mentorSession.completed && mentorSession.paid) {
+  if (mentorSession.reviewed) {
+    <div className="flex flex-col flex-1">
+      <main className="flex-1 pb-8">
+        {mentor && <MentorProfileHeader mentor={mentor}/>}
+        <div className="mt-8">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p>Nothing to see here. This session is finished.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  }
+
+  if (mentorSession.paid) {
     return (
       <div className="flex flex-col flex-1">
         <main className="flex-1 pb-8">
           {mentor && <MentorProfileHeader mentor={mentor}/>}
           <div className="mt-8">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-              <SessionReview mentorSession={mentorSession}/>
+              {mentorSession.client_profile.username === user.username ? (
+                <SessionReview mentorSession={mentorSession}/>
+              ) : (
+                <p>Nothing to see here. This session is finished.</p>
+              )}
             </div>
           </div>
         </main>
