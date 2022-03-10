@@ -25,7 +25,7 @@ export default function Navbar() {
     <Disclosure as="nav" className="bg-gray-50">
       {({open}) => (
         <>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
             <div className="relative h-16 flex items-center justify-between border-b border-gray-200">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -37,7 +37,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Links section */}
-                <div className="hidden lg:block lg:ml-10">
+                <div className="hidden md:block md:ml-10">
                   <div className="flex space-x-4">
                     {user && navigation.map(item => {
                       if (item.onlyMentors && user && !user.is_mentor) {
@@ -82,7 +82,7 @@ export default function Navbar() {
               {/*  </div>*/}
               {/*</div>*/}
 
-              <div className="flex lg:hidden">
+              <div className="flex md:hidden">
                 {/* Mobile menu button */}
                 <Disclosure.Button
                   className="bg-gray-50 p-2 inline-flex items-center justify-center rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-purple-500">
@@ -96,7 +96,7 @@ export default function Navbar() {
               </div>
 
               {/* Actions section */}
-              <div className="hidden lg:block lg:ml-4">
+              <div className="hidden md:block md:ml-4">
                 <div className="flex items-center">
                   {/* Profile dropdown */}
                   {user ? (
@@ -142,7 +142,7 @@ export default function Navbar() {
                       </Transition>
                     </Menu>
                   ) : (
-                    <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
+                    <div className="hidden md:flex items-center justify-end md:flex-1 md:w-0">
                       <Link href={"/login"}>
                         <a className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900">
                           Sign in
@@ -161,7 +161,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <Disclosure.Panel className="bg-gray-50 border-b border-gray-200 lg:hidden">
+          <Disclosure.Panel className="bg-gray-50 border-b border-gray-200 md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
                 if (!item.onlyMentors) {
@@ -179,7 +179,7 @@ export default function Navbar() {
                     </Link>
                   )
                 }
-                if (user && !user.is_mentor) {
+                if (user && user.is_mentor) {
                   return (
                     <Link key={item.name} href={item.href}>
                       <a
