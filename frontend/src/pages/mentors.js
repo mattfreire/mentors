@@ -18,7 +18,7 @@ function Mentor({mentor}) {
   const stars = []
   for (let i = 1; i < mentor.average_rating + 1; i++) {
     stars.push(
-      <li key={i} className="cursor-pointer">
+      <li key={i}>
         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="star"
              className={"text-yellow-500 w-4 mr-1"} role="img" xmlns="http://www.w3.org/2000/svg"
              viewBox="0 0 576 512">

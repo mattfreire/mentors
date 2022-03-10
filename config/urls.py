@@ -12,6 +12,8 @@ from rest_framework_simplejwt.views import (
 )
 from dj_rest_auth.registration.views import VerifyEmailView, ResendEmailVerificationView, RegisterView
 
+from mentors.users.api.views import CustomRegisterView
+
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path(
@@ -33,7 +35,7 @@ urlpatterns += [
     path("api/auth/token/", TokenObtainPairView.as_view()),
     path("api/auth/token/refresh/", TokenRefreshView.as_view()),
     path("api/auth/token/verify/", TokenVerifyView.as_view()),
-    path("api/auth/register/", RegisterView.as_view()),
+    path("api/auth/register/", CustomRegisterView.as_view()),
     path("api/auth/verify-email/", VerifyEmailView.as_view(), name='account_email_verification_sent'),
     path("api/auth/resend/", ResendEmailVerificationView.as_view()),
     path('api/auth/reset-password/', include('django_rest_passwordreset.urls')),
